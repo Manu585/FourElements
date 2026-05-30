@@ -1,9 +1,8 @@
 package com.github.manu585.fourelements.bukkit.listeners;
 
-import com.github.manu585.fourelements.api.bending.element.Elements;
+import com.github.manu585.fourelements.api.bending.element.Element;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
 import com.github.manu585.fourelements.core.bender.Bender;
-import java.util.Set;
 import java.util.UUID;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,7 +27,7 @@ public class ConnectionListeners implements Listener {
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
     Player player = event.getPlayer();
-    Bender bender = new Bender(player.getUniqueId(), Set.of(Elements.AIR));
+    Bender bender = new Bender(player.getUniqueId(), Element.AIR);
     benderManager.persist(player.getUniqueId(), bender);
   }
 

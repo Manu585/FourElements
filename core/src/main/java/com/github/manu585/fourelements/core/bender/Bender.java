@@ -1,28 +1,24 @@
 package com.github.manu585.fourelements.core.bender;
 
 import com.github.manu585.fourelements.api.bender.IBender;
-import com.github.manu585.fourelements.api.bending.element.Elements;
-import java.util.Set;
+import com.github.manu585.fourelements.api.bending.element.Element;
+import java.util.List;
 import java.util.UUID;
 
-public class Bender implements IBender {
+public record Bender(UUID uuid, List<Element> elements) implements IBender {
 
-  private final UUID uuid;
-  private final Set<Elements> elements;
-
-  public Bender(UUID uuid, Set<Elements> elements) {
+  public Bender(UUID uuid, List<Element> elements) {
     this.uuid = uuid;
-    this.elements = elements == null || elements.isEmpty() ? Set.of() : elements;
+    this.elements = elements == null || elements.isEmpty() ? List.of() : elements;
+  }
+
+  public Bender(UUID uuid, Element element) {
+    this(uuid, List.of(element));
   }
 
   @Override
-  public UUID uuid() {
-    return uuid;
-  }
-
-  @Override
-  public Set<Elements> elements() {
-    return Set.copyOf(elements);
+  public List<Element> elements() {
+    return List.copyOf(elements);
   }
 
 }
