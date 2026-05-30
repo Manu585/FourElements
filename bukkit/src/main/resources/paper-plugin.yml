@@ -1,0 +1,26 @@
+name: FourElements
+version: '1.0.0'
+main: com.github.manu585.fourelements.bukkit.FourElementsPlugin
+description: Minecraft bending plugin inspired by Avatar the last airbender.
+api-version: '26.1.2'
+author: Manunu_
+website: https://gogg-tech.com
+database: true
+libraries:
+  - com.mysql:mysql-connector-j:9.2.0
+  - com.zaxxer:HikariCP:6.2.1
+
+dependencies:
+  server:
+    packetevents:
+      load: BEFORE
+      required: true
+      join-classpath: true
+
+permissions:
+  fourelements.play:
+    description: Allows playing icerace races
+    default: true
+  fourelements.admin:
+    description: Allows administrating icerace tracks
+    default: op
