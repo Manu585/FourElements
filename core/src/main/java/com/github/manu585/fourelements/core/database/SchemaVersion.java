@@ -26,10 +26,6 @@ public final class SchemaVersion {
             // Version 1
             SqlStatements.CREATE_SCHEMA_VERSION_TABLE + ";"
                     + SqlStatements.CREATE_PLAYERS_TABLE + ";"
-                    + SqlStatements.CREATE_TRACKS_TABLE + ";"
-                    + SqlStatements.CREATE_TIMES_TABLE + ";"
-                    + SqlStatements.CREATE_MONTHLY_TIMES_TABLE + ";"
-                    + SqlStatements.CREATE_RUN_HISTORY_TABLE
     };
   }
 
