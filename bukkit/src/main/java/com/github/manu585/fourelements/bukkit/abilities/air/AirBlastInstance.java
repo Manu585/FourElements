@@ -1,18 +1,18 @@
 package com.github.manu585.fourelements.bukkit.abilities.air;
 
 import com.github.manu585.fourelements.api.bending.ability.ActiveAbility;
-import com.github.manu585.fourelements.api.bending.metadata.AbilityMetadata;
+import com.github.manu585.fourelements.api.bending.ability.definition.AbilityDefinition;
 import java.util.UUID;
 
 public class AirBlastInstance implements ActiveAbility {
 
   // unique id each cast / instance
   private final UUID instanceId = UUID.randomUUID();
-  private final AbilityMetadata metadata;
   private final UUID casterId;
+  private final AbilityDefinition definition;
 
-  public AirBlastInstance(AbilityMetadata metadata, UUID casterId) {
-    this.metadata = metadata;
+  public AirBlastInstance(AbilityDefinition definition, UUID casterId) {
+    this.definition = definition;
     this.casterId = casterId;
   }
 
@@ -27,18 +27,18 @@ public class AirBlastInstance implements ActiveAbility {
   }
 
   @Override
-  public UUID abilityId() {
-    return instanceId;
+  public UUID instanceId() {
+    return null;
   }
 
   @Override
   public UUID casterId() {
-    return casterId;
+    return null;
   }
 
   @Override
-  public AbilityMetadata metadata() {
-    return metadata;
+  public AbilityDefinition definition() {
+    return definition;
   }
 
   @Override

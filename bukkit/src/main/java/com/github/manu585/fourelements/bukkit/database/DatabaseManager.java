@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 
+// TODO: Ugly class, fix in future
 public final class DatabaseManager {
 
   private final HikariDataSource dataSource;

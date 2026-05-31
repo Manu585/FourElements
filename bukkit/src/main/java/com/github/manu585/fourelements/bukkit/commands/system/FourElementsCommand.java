@@ -1,4 +1,4 @@
-package com.github.manu585.fourelements.bukkit.commands;
+package com.github.manu585.fourelements.bukkit.commands.system;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;

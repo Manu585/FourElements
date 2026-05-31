@@ -5,17 +5,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import lombok.Getter;
 
-public class DatabaseExecutorPool {
+@Getter
+public final class DatabaseExecutorPool {
 
   private final ExecutorService executor;
 
   public DatabaseExecutorPool(int poolSize) {
     this.executor = Executors.newFixedThreadPool(poolSize, daemonThreadFactory());
-  }
-
-  public ExecutorService getExecutor() {
-    return executor;
   }
 
   public void shutdown() {
@@ -38,4 +36,5 @@ public class DatabaseExecutorPool {
       return thread;
     };
   }
+
 }
