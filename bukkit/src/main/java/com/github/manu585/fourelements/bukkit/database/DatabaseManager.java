@@ -7,14 +7,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
 public final class DatabaseManager {
 
   private final HikariDataSource dataSource;
   private final DatabaseExecutorPool executorPool;
 
-  public DatabaseManager(JavaPlugin plugin) {
+  public DatabaseManager(Plugin plugin) {
     FileConfiguration config = plugin.getConfig();
 
     int port = config.getInt("database.port");

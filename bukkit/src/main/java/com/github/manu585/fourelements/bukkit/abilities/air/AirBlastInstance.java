@@ -1,4 +1,4 @@
-package com.github.manu585.fourelements.bukkit.abilities.air.airblast;
+package com.github.manu585.fourelements.bukkit.abilities.air;
 
 import com.github.manu585.fourelements.api.bending.ability.ActiveAbility;
 import com.github.manu585.fourelements.api.bending.metadata.AbilityMetadata;
@@ -45,4 +45,5 @@ public class AirBlastInstance implements ActiveAbility {
   public boolean tick() {
     return false;
   }
+
 }

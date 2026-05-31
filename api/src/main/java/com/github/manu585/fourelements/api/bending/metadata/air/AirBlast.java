@@ -1,7 +1,7 @@
 package com.github.manu585.fourelements.api.bending.metadata.air;
 
-import com.github.manu585.fourelements.api.bending.registry.Element;
 import com.github.manu585.fourelements.api.bending.metadata.AbilityMetadata;
+import com.github.manu585.fourelements.api.bending.registry.Element;
 
 public class AirBlast implements AbilityMetadata {
 

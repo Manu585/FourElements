@@ -3,14 +3,14 @@ package com.github.manu585.fourelements.bukkit.manager;
 import com.github.manu585.fourelements.api.bender.Bender;
 import com.github.manu585.fourelements.core.registry.BenderRegistry;
 import java.util.UUID;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
 public final class BenderManager {
 
-  private final JavaPlugin plugin;
+  private final Plugin plugin;
   private final BenderRegistry storage;
 
-  public BenderManager(JavaPlugin plugin, BenderRegistry storage) {
+  public BenderManager(Plugin plugin, BenderRegistry storage) {
     this.plugin = plugin;
     this.storage = storage;
   }

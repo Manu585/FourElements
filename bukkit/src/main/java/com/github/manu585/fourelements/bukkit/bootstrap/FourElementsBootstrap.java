@@ -11,17 +11,17 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import java.sql.SQLException;
 import java.util.List;
 import lombok.Getter;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
 @Getter
 public final class FourElementsBootstrap {
 
-  private final JavaPlugin plugin;
   private final DatabaseManager databaseManager;
+  private final Plugin plugin;
   private final BenderManager benderManager;
   private final FourElementsProviderImpl provider;
 
-  public FourElementsBootstrap(JavaPlugin plugin) throws SQLException {
+  public FourElementsBootstrap(Plugin plugin) throws SQLException {
     this.plugin = plugin;
     this.databaseManager = new DatabaseManager(plugin);
     this.benderManager = new BenderManager(plugin, new BenderRegistry());
