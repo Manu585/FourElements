@@ -27,7 +27,7 @@ public class ConnectionListeners implements Listener {
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
     Player player = event.getPlayer();
-    Bender bender = new Bender(player.getUniqueId(), Element.AIR);
+    Bender bender = new Bender(player.getUniqueId(), Element.EARTH);
     benderManager.onConnect(bender);
   }
 

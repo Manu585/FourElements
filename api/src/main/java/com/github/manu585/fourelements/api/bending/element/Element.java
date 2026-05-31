@@ -44,4 +44,8 @@ public enum Element {
     return chatColorHex;
   }
 
+  public int toIntHex() {
+    return Integer.parseInt(chatColorHex.substring(1), 16);
+  }
+
 }

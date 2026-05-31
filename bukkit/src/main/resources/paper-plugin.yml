@@ -1,7 +1,6 @@
 name: FourElements
 version: 'Alpha-0.0.1'
 main: com.github.manu585.fourelements.bukkit.FourElementsPlugin
-bootstrapper: com.github.manu585.fourelements.bukkit.FourElementsPaperBootstrap
 description: Minecraft bending plugin inspired by Avatar the last Airbender.
 api-version: '26.1.2'
 author: Manunu_
