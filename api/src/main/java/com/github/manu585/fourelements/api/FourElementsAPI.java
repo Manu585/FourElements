@@ -1,7 +1,7 @@
 package com.github.manu585.fourelements.api;
 
 /**
- * Static accessor for the IceBoating API.
+ * Static accessor for the FourElements API.
  *
  * <p>The provider is set once by the plugin implementation during
  * startup and must not be replaced afterward.</p>

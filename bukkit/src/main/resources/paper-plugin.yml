@@ -1,7 +1,8 @@
 name: FourElements
-version: '1.0.0'
+version: 'Alpha-0.0.1'
 main: com.github.manu585.fourelements.bukkit.FourElementsPlugin
-description: Minecraft bending plugin inspired by Avatar the last airbender.
+bootstrapper: com.github.manu585.fourelements.bukkit.FourElementsPaperBootstrap
+description: Minecraft bending plugin inspired by Avatar the last Airbender.
 api-version: '26.1.2'
 author: Manunu_
 website: https://gogg-tech.com
@@ -18,9 +19,32 @@ dependencies:
       join-classpath: true
 
 permissions:
-  fourelements.play:
-    description: Allows playing icerace races
-    default: true
-  fourelements.admin:
-    description: Allows administrating icerace tracks
+  fourelements.*:
+    description: FourElements OP
     default: op
+    children:
+      fourelements.command.*: true
+      fourelements.element.*: true
+
+  fourelements.command.*:
+    description: all /elements subcommands
+    default: op
+    children:
+      fourelements.command.who: true
+      fourelements.command.choose: true
+
+  fourelements.command.who:
+    description: view a players elements and other metadata
+    default: true
+  fourelements.command.choose:
+    description: ability to pick an element
+    default: op
+
+  fourelements.element.*:
+    description: access to all elements
+    default: false
+    children:
+      fourelements.element.air: true
+      fourelements.element.water: true
+      fourelements.element.earth: true
+      fourelements.element.fire: true

@@ -3,16 +3,16 @@ package com.github.manu585.fourelements.bukkit;
 import java.sql.SQLException;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class FourElementsPlugin extends JavaPlugin {
+public final class FourElementsPlugin extends JavaPlugin {
 
-  private FourElementsBootstrap bootstrap;
+  private FourElementsInternalBootstrap internalBootstrap;
 
   @Override
   public void onEnable() {
     saveDefaultConfig();
     try {
-      bootstrap = new FourElementsBootstrap(this);
-      bootstrap.onEnable();
+      internalBootstrap = new FourElementsInternalBootstrap(this);
+      internalBootstrap.onEnable();
     } catch (SQLException e) {
       getLogger().severe("Failed to initialize database: " + e.getMessage());
       getServer().getPluginManager().disablePlugin(this);
@@ -21,8 +21,8 @@ public class FourElementsPlugin extends JavaPlugin {
 
   @Override
   public void onDisable() {
-    if (bootstrap != null) {
-      bootstrap.onDisable();
+    if (internalBootstrap != null) {
+      internalBootstrap.onDisable();
     }
   }
 

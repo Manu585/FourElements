@@ -15,15 +15,23 @@ public final class BenderManager {
     this.storage = storage;
   }
 
-  public void persist(UUID uuid, Bender bender) {
-    storage.put(uuid, bender);
+  // Called upon first connection of a player
+  // stores bender in map, assigns elements, ...
+  public void onConnect(Bender bender) {
+    persist(bender);
+
+    // Add elements from DB, yada yada
   }
 
   public Bender getBender(UUID uuid) {
     return storage.get(uuid);
   }
 
-  public void clear(UUID uuid) {
+  public void persist(Bender bender) {
+    storage.put(bender.uuid(), bender);
+  }
+
+  public void delete(UUID uuid) {
     storage.remove(uuid);
   }
 

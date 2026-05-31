@@ -3,12 +3,12 @@ package com.github.manu585.fourelements.api.bending.element;
 // TODO: Implement sub elements
 public enum Element {
 
-  AIR(null, "Air", "#9be7ff"),
-  WATER(null, "Water", "#3aa0ff"),
-  EARTH(null, "Earth", "#7a5230"),
-  FIRE(null, "Fire", "d93030"),
-  CHI(null, "Chi", "#ffff9b"),
-  AVATAR(null, "Avatar", "#cc72f2");
+  AIR("Air", "#9be7ff"),
+  WATER("Water", "#3aa0ff"),
+  EARTH("Earth", "#7a5230"),
+  FIRE("Fire", "d93030"),
+  CHI("Chi", "#ffff9b"),
+  AVATAR("Avatar", "#cc72f2");
 
   private final Element parent;
   private final String displayName;
@@ -20,6 +20,10 @@ public enum Element {
     this.chatColorHex = chatColorHex;
   }
 
+  Element(String displayName, String chatColorHex) {
+    this(null, displayName, chatColorHex);
+  }
+
   public boolean isSubElement() {
     return parent != null;
   }
@@ -28,7 +32,7 @@ public enum Element {
     return parent == element;
   }
 
-  public Element parent() {
+  public Element parentElement() {
     return parent;
   }
 

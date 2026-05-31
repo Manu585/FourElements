@@ -7,26 +7,26 @@ import java.util.UUID;
 
 public final class BenderStorage implements Cache<UUID, Bender> {
 
-  private final Map<UUID, Bender> benders = new HashMap<>();
+  private final Map<UUID, Bender> bendersMap = new HashMap<>();
 
   @Override
   public Bender get(UUID key) {
-    return benders.get(key);
+    return bendersMap.get(key);
   }
 
   @Override
   public Bender remove(UUID key) {
-    return benders.containsKey(key) ? benders.remove(key) : null;
+    return bendersMap.containsKey(key) ? bendersMap.remove(key) : null;
   }
 
   @Override
   public void put(UUID key, Bender value) {
-    benders.put(key, value);
+    bendersMap.put(key, value);
   }
 
   @Override
   public void clear() {
-    benders.clear();
+    bendersMap.clear();
   }
 
 }
