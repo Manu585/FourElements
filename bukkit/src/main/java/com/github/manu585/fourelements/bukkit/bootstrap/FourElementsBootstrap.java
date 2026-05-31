@@ -10,8 +10,10 @@ import com.github.manu585.fourelements.core.registry.BenderRegistry;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import java.sql.SQLException;
 import java.util.List;
+import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
+@Getter
 public final class FourElementsBootstrap {
 
   private final JavaPlugin plugin;
