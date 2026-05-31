@@ -1,11 +1,11 @@
-package com.github.manu585.fourelements.core.storage;
+package com.github.manu585.fourelements.core.registry;
 
-import com.github.manu585.fourelements.core.bender.Bender;
+import com.github.manu585.fourelements.api.bender.Bender;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public final class BenderStorage implements Cache<UUID, Bender> {
+public final class BenderRegistry implements Cache<UUID, Bender> {
 
   private final Map<UUID, Bender> bendersMap = new HashMap<>();
 

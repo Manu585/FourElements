@@ -1,4 +1,4 @@
-package com.github.manu585.fourelements.core.storage;
+package com.github.manu585.fourelements.core.registry;
 
 public interface Cache <K, V> {
 

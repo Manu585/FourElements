@@ -1,9 +1,14 @@
 package com.github.manu585.fourelements.api.bending.ability;
 
-import com.github.manu585.fourelements.api.metadata.AbilityMetadata;
+import com.github.manu585.fourelements.api.bending.metadata.AbilityMetadata;
+import java.util.UUID;
 
-public interface Ability extends AbilityMetadata {
+public interface Ability {
 
-  void progress();
+  UUID abilityId();
+
+  UUID casterId();
+
+  AbilityMetadata metadata();
 
 }

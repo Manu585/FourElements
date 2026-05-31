@@ -9,11 +9,11 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import java.util.List;
 
-public final class FourElementsCommands {
+public final class CommandsAssembler {
 
   private final BenderManager benderManager;
 
-  public FourElementsCommands(BenderManager benderManager) {
+  public CommandsAssembler(BenderManager benderManager) {
     this.benderManager = benderManager;
   }
 

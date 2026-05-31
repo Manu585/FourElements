@@ -1,8 +1,8 @@
 package com.github.manu585.fourelements.bukkit.commands;
 
-import com.github.manu585.fourelements.api.bending.element.Element;
+import com.github.manu585.fourelements.api.bender.Bender;
+import com.github.manu585.fourelements.api.bending.registry.Element;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
-import com.github.manu585.fourelements.core.bender.Bender;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import java.util.Objects;

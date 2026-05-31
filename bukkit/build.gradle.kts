@@ -12,8 +12,8 @@ dependencies {
     implementation(project(":core"))
     compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
     compileOnly("com.github.retrooper:packetevents-spigot:2.12.1")
-    compileOnly("com.zaxxer:HikariCP:6.2.1")
-    compileOnly("com.mysql:mysql-connector-j:9.3.0")
+    compileOnly("com.zaxxer:HikariCP:7.0.2")
+    compileOnly("com.mysql:mysql-connector-j:9.7.0")
 }
 
 tasks.shadowJar {
@@ -26,7 +26,7 @@ tasks.shadowJar {
         attributes(
             "Implementation-Title" to rootProject.name,
             "Implementation-Version" to project.version,
-            "Implementation-Vendor" to "manu585",
+            "Implementation-Vendor" to "Manu585",
             "Multi-Release" to "true",
             "papermc-plugin-name" to rootProject.name,
         )

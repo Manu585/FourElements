@@ -1,4 +1,4 @@
-package com.github.manu585.fourelements.api.bending.element;
+package com.github.manu585.fourelements.api.bending.registry;
 
 import net.kyori.adventure.text.format.TextColor;
 import org.jspecify.annotations.NonNull;
