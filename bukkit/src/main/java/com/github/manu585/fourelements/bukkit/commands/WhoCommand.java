@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 
 public class WhoCommand extends FourElementsCommand {
 
@@ -30,9 +29,9 @@ public class WhoCommand extends FourElementsCommand {
     context.getSource().getSender().sendMessage(
             Component.text("You are an", NamedTextColor.YELLOW)
                     .appendSpace()
-                    .append(Component.text(element.displayName(), TextColor.color(element.toIntHex()))
+                    .append(Component.text(element.displayName(), element.textColor()))
                     .appendSpace()
-                    .append(Component.text("Bender",  NamedTextColor.YELLOW))));
+                    .append(Component.text("Bender",  NamedTextColor.YELLOW)));
   }
 
 }

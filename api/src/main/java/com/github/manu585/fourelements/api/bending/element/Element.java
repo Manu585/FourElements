@@ -1,5 +1,8 @@
 package com.github.manu585.fourelements.api.bending.element;
 
+import net.kyori.adventure.text.format.TextColor;
+import org.jspecify.annotations.NonNull;
+
 // TODO: Implement sub elements
 public enum Element {
 
@@ -46,6 +49,10 @@ public enum Element {
 
   public int toIntHex() {
     return Integer.parseInt(chatColorHex.substring(1), 16);
+  }
+
+  public @NonNull TextColor textColor() {
+    return TextColor.color(toIntHex());
   }
 
 }
