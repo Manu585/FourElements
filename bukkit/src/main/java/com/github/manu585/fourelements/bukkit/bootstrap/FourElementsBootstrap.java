@@ -18,8 +18,8 @@ import org.bukkit.plugin.Plugin;
 @Getter
 public final class FourElementsBootstrap {
 
-  private final DatabaseManager databaseManager;
   private final Plugin plugin;
+  private final DatabaseManager databaseManager;
   private final BenderManager benderManager;
   private final FourElementsProviderImpl provider;
   private final List<PluginSystem> systems;

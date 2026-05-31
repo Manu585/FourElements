@@ -1,5 +1,6 @@
 package com.github.manu585.fourelements.bukkit.commands.system;
 
+import com.github.manu585.fourelements.bukkit.commands.FourElementsCommand;
 import com.github.manu585.fourelements.core.system.PluginSystem;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
