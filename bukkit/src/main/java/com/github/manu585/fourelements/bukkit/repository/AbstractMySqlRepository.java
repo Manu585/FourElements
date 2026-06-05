@@ -1,30 +1,26 @@
 package com.github.manu585.fourelements.bukkit.repository;
 
 import com.github.manu585.fourelements.bukkit.database.DatabaseManager;
+import com.github.manu585.fourelements.bukkit.repository.interfaces.SqlConsumer;
+import com.github.manu585.fourelements.bukkit.repository.interfaces.SqlFunction;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public abstract class MySqlRepository {
+/**
+ * Parent class for all MySql repositories
+ * containing helper methods for easier Query consumption and execution
+ */
+public abstract class AbstractMySqlRepository {
 
-  private static final Logger LOGGER = Logger.getLogger(MySqlRepository.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(AbstractMySqlRepository.class.getName());
 
   protected final DatabaseManager databaseManager;
 
-  public MySqlRepository(DatabaseManager databaseManager) {
+  public AbstractMySqlRepository(DatabaseManager databaseManager) {
     this.databaseManager = databaseManager;
-  }
-
-  @FunctionalInterface
-  protected interface SqlFunction<T> {
-    T apply(Connection connection) throws SQLException;
-  }
-
-  @FunctionalInterface
-  protected interface SqlConsumer {
-    void accept(Connection connection) throws SQLException;
   }
 
   protected <T> CompletableFuture<T> queryAsync(String description, T fallback, SqlFunction<T> function) {

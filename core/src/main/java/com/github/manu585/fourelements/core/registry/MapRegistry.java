@@ -5,6 +5,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Registry for all runtime required data in O(1) complexity
+ * backed by a {@link ConcurrentHashMap}.
+ *
+ * @param <K> Mapped Key
+ * @param <V> Mapped Value
+ */
 public class MapRegistry<K, V> implements Registry<K, V> {
 
   protected final Map<K, V> registry = new ConcurrentHashMap<>();

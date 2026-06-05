@@ -35,7 +35,7 @@ public final class FourElementsBootstrap {
   public void onEnable() {
     plugin.getLogger().info(plugin.getName() + " plugin enabled!");
     systems.forEach(PluginSystem::enable);
-    registerAPI();
+    registerApi();
   }
 
   public void onDisable() {
@@ -61,7 +61,7 @@ public final class FourElementsBootstrap {
   }
 
   /**
-   * Build command system
+   * Build command system.
    *
    * @return Command System
    */
@@ -72,7 +72,7 @@ public final class FourElementsBootstrap {
   }
 
   /**
-   * Build listener system
+   * Build listener system.
    *
    * @return Listener system
    */
@@ -82,7 +82,10 @@ public final class FourElementsBootstrap {
     ));
   }
 
-  private void registerAPI() {
+  /**
+   * Registers the {@link FourElementsAPI} provider.
+   */
+  private void registerApi() {
     FourElementsAPI.setProvider(provider);
   }
 

@@ -36,7 +36,7 @@ public final class DatabaseManager {
     hikariConfig.addDataSourceProperty("useServerPrepStmts", "true");
 
     this.dataSource = new HikariDataSource(hikariConfig);
-    this.executorPool = new DatabaseExecutorPool(5);
+    this.executorPool = new DatabaseExecutorPool(hikariConfig.getMaximumPoolSize());
   }
 
   public Connection getConnection() throws SQLException {

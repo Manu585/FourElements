@@ -14,22 +14,15 @@ public abstract class FourElementsCommand {
     this.name = name;
   }
 
-  protected String permission() {
-    return null;
-  }
-
   protected abstract void execute(CommandContext<CommandSourceStack> context);
 
   public LiteralArgumentBuilder<CommandSourceStack> branch() {
-    return base().executes(this::run);
+    return Commands.literal(name).executes(this::run);
   }
 
+  // TODO: Implement permission system
   protected final LiteralArgumentBuilder<CommandSourceStack> base() {
-    LiteralArgumentBuilder<CommandSourceStack> literal = Commands.literal(name);
-    if (permission() != null) {
-      literal.requires(src -> src.getSender().hasPermission(permission()));
-    }
-    return literal;
+    return Commands.literal(name);
   }
 
   protected final int run(CommandContext<CommandSourceStack> context) {
