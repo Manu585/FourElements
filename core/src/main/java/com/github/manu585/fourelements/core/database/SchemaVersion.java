@@ -24,8 +24,8 @@ public final class SchemaVersion {
   public static String[] getMigrations() {
     return new String[]{
             // Version 1
-            SqlStatements.CREATE_SCHEMA_VERSION_TABLE + ";"
-                    + SqlStatements.CREATE_PLAYERS_TABLE + ";"
+            SqlStatements.CREATE_SCHEMA_VERSION_TABLE.getQuery() + ";"
+                    + SqlStatements.CREATE_PLAYERS_TABLE.getQuery() + ";"
     };
   }
 
