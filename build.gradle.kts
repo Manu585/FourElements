@@ -1,5 +1,6 @@
 plugins {
     java
+    checkstyle
 }
 
 subprojects {
@@ -19,6 +20,12 @@ subprojects {
     tasks.withType<JavaCompile>().configureEach {
         options.encoding = "UTF-8"
         options.release.set(25)
+    }
+
+    tasks.withType<Checkstyle>().configureEach {
+        javaLauncher = javaToolchains.launcherFor {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
     }
 
     tasks.withType<Jar>().configureEach {

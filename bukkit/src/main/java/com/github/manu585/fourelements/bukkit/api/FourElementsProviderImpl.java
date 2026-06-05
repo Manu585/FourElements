@@ -2,7 +2,6 @@ package com.github.manu585.fourelements.bukkit.api;
 
 import com.github.manu585.fourelements.api.FourElementsProvider;
 import com.github.manu585.fourelements.api.bender.Bender;
-import com.github.manu585.fourelements.api.bending.ability.Ability;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
 import java.util.UUID;
 
@@ -17,11 +16,6 @@ public final class FourElementsProviderImpl implements FourElementsProvider {
   @Override
   public Bender getBender(UUID uuid) {
     return benderManager.getBender(uuid);
-  }
-
-  @Override
-  public Ability getAbility(UUID uuid) {
-    return null;
   }
 
 }

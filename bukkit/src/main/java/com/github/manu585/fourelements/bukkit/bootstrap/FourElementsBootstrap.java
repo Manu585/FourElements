@@ -2,8 +2,8 @@ package com.github.manu585.fourelements.bukkit.bootstrap;
 
 import com.github.manu585.fourelements.api.FourElementsAPI;
 import com.github.manu585.fourelements.bukkit.api.FourElementsProviderImpl;
-import com.github.manu585.fourelements.bukkit.commands.system.CommandSystem;
 import com.github.manu585.fourelements.bukkit.commands.WhoCommand;
+import com.github.manu585.fourelements.bukkit.commands.system.CommandSystem;
 import com.github.manu585.fourelements.bukkit.database.DatabaseManager;
 import com.github.manu585.fourelements.bukkit.listeners.ConnectionListeners;
 import com.github.manu585.fourelements.bukkit.listeners.system.ListenerSystem;

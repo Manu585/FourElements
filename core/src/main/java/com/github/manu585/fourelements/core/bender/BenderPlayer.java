@@ -5,7 +5,10 @@ import com.github.manu585.fourelements.api.bending.registry.Element;
 import java.util.List;
 import java.util.UUID;
 
-public record BenderPlayer(UUID uuid, List<Element> elements) implements Bender {
+public class BenderPlayer implements Bender {
+
+  private final UUID uuid;
+  private final List<Element> elements;
 
   public BenderPlayer(UUID uuid, List<Element> elements) {
     this.uuid = uuid;
@@ -14,6 +17,11 @@ public record BenderPlayer(UUID uuid, List<Element> elements) implements Bender 
 
   public BenderPlayer(UUID uuid, Element element) {
     this(uuid, List.of(element));
+  }
+
+  @Override
+  public UUID uuid() {
+    return this.uuid;
   }
 
   @Override

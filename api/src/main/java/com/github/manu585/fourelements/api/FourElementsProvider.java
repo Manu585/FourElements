@@ -1,7 +1,6 @@
 package com.github.manu585.fourelements.api;
 
 import com.github.manu585.fourelements.api.bender.Bender;
-import com.github.manu585.fourelements.api.bending.ability.Ability;
 import java.util.UUID;
 
 /**
@@ -13,11 +12,10 @@ public interface FourElementsProvider {
 
   /**
    * Receive a {@link Bender} from given UUID
+   *
    * @param uuid UUID of bender to get.
    * @return Bender or null
    */
   Bender getBender(UUID uuid);
-
-  Ability getAbility(UUID uuid);
 
 }
