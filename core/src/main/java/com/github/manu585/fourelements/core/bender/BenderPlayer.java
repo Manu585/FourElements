@@ -12,7 +12,7 @@ public class BenderPlayer implements Bender {
 
   public BenderPlayer(UUID uuid, List<Element> elements) {
     this.uuid = uuid;
-    this.elements = elements == null || elements.isEmpty() ? List.of() : elements;
+    this.elements = elements == null || elements.isEmpty() ? List.of() : List.copyOf(elements);
   }
 
   public BenderPlayer(UUID uuid, Element element) {
@@ -26,7 +26,7 @@ public class BenderPlayer implements Bender {
 
   @Override
   public List<Element> elements() {
-    return List.copyOf(elements);
+    return elements;
   }
 
 }

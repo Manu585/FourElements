@@ -6,14 +6,40 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
-public class OnlineBenderPlayer extends BenderPlayer {
+/**
+ * Runtime bender on server
+ */
+public class OnlineBenderPlayer {
 
   @Getter
-  @Setter
-  private Element activeElement;
+  private final BenderPlayer benderPlayer;
 
-  public OnlineBenderPlayer(UUID uuid, List<Element> elements) {
-    super(uuid, elements);
+  @Getter
+  private Element activeElement;
+  @Getter
+  @Setter
+  private boolean inBendingMode;
+
+  /**
+   * Constructor for Runtime bender on the server.
+   */
+  public OnlineBenderPlayer(BenderPlayer benderPlayer) {
+    this.benderPlayer = benderPlayer;
+  }
+
+  public void setActiveElement(Element activeElement) {
+    if (!benderPlayer.elements().contains(activeElement)) {
+      throw new IllegalArgumentException("Player " + uuid() + " does not possess element "+ activeElement);
+    }
+    this.activeElement = activeElement;
+  }
+
+  public UUID uuid() {
+    return benderPlayer.uuid();
+  }
+
+  public List<Element> elements() {
+    return benderPlayer.elements();
   }
 
 }
