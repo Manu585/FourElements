@@ -6,11 +6,11 @@ package com.github.manu585.fourelements.api;
  * <p>The provider is set once by the plugin implementation during
  * startup and must not be replaced afterward.</p>
  */
-public final class FourElementsAPI {
+public final class FourElementsApi {
 
   private static FourElementsProvider provider;
 
-  private FourElementsAPI() {
+  private FourElementsApi() {
     throw new AssertionError("No instances.");
   }
 
@@ -34,10 +34,10 @@ public final class FourElementsAPI {
    * @throws IllegalStateException if a provider has already been registered
    */
   public static void setProvider(FourElementsProvider provider) {
-    if (FourElementsAPI.provider != null) {
+    if (FourElementsApi.provider != null) {
       throw new IllegalStateException("Provider already set");
     }
-    FourElementsAPI.provider = provider;
+    FourElementsApi.provider = provider;
   }
 
   /**

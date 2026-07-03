@@ -6,7 +6,7 @@ import java.util.UUID;
 /**
  * Primary service interface exposed by the IceBoating plugin.
  *
- * <p>Obtain an instance via {@link FourElementsAPI#get()}.</p>
+ * <p>Obtain an instance via {@link FourElementsApi#get()}.</p>
  */
 public interface FourElementsProvider {
 

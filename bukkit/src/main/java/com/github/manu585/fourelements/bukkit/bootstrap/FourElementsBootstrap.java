@@ -1,10 +1,11 @@
 package com.github.manu585.fourelements.bukkit.bootstrap;
 
-import com.github.manu585.fourelements.api.FourElementsAPI;
+import com.github.manu585.fourelements.api.FourElementsApi;
 import com.github.manu585.fourelements.bukkit.api.FourElementsProviderImpl;
 import com.github.manu585.fourelements.bukkit.commands.WhoCommand;
 import com.github.manu585.fourelements.bukkit.commands.system.CommandSystem;
 import com.github.manu585.fourelements.bukkit.database.DatabaseManager;
+import com.github.manu585.fourelements.bukkit.database.SchemaMigrator;
 import com.github.manu585.fourelements.bukkit.listeners.ConnectionListeners;
 import com.github.manu585.fourelements.bukkit.listeners.system.ListenerSystem;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
@@ -27,6 +28,9 @@ public final class FourElementsBootstrap {
   public FourElementsBootstrap(Plugin plugin) throws SQLException {
     this.plugin = plugin;
     this.databaseManager = new DatabaseManager(plugin);
+
+    new SchemaMigrator(databaseManager, plugin.getLogger()).migrate();
+
     this.benderManager = new BenderManager(plugin, new BenderRegistry());
     this.provider = new FourElementsProviderImpl(benderManager);
     this.systems = assembleSystems();
@@ -83,10 +87,10 @@ public final class FourElementsBootstrap {
   }
 
   /**
-   * Registers the {@link FourElementsAPI} provider.
+   * Registers the {@link FourElementsApi} provider.
    */
   private void registerApi() {
-    FourElementsAPI.setProvider(provider);
+    FourElementsApi.setProvider(provider);
   }
 
 }
