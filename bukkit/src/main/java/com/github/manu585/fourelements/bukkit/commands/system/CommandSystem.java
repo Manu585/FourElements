@@ -24,7 +24,7 @@ public final class CommandSystem implements PluginSystem {
     plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
       LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("elements");
       for (FourElementsCommand command : commands) {
-        root.then(command.branch());
+        root.then(command.build());
       }
       event.registrar().register(root.build(), "Four elements command", List.of("b", "bending", "fe"));
     });

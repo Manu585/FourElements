@@ -30,13 +30,10 @@ public final class SchemaVersion {
   public static List<Migration> migrations() {
     return List.of(
         // Version 1: initial schema.
-        // Order matters!
+        // Order matters! bender_elements references benders.
         new Migration(1, List.of(
-            SqlQueries.CREATE_ELEMENTS_TABLE.getQuery(),
             SqlQueries.CREATE_BENDERS_TABLE.getQuery(),
-            SqlQueries.CREATE_SUB_ELEMENTS_TABLE.getQuery(),       // references elements
-            SqlQueries.CREATE_BENDER_ELEMENTS_TABLE.getQuery(),    // references benders, elements
-            SqlQueries.CREATE_BENDER_SUB_ELEMENTS_TABLE.getQuery() // references benders, sub_elements
+            SqlQueries.CREATE_BENDER_ELEMENTS_TABLE.getQuery()
         ))
     );
   }

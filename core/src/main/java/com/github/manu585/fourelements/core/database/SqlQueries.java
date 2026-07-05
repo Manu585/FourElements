@@ -17,43 +17,43 @@ public enum SqlQueries {
 
   INSERT_SCHEMA_VERSION("INSERT INTO schema_version (version) VALUES (?)"),
 
+
+  // ---------------------------------------------------------------------------
+  // Schema DDL. Elements are stored by their Element enum name: the enum in code
+  // is the single source of truth for which elements (and sub-elements) exist and
+  // how they relate, so no separate reference/join tables are needed.
+  // ---------------------------------------------------------------------------
+
   CREATE_BENDERS_TABLE("CREATE TABLE IF NOT EXISTS benders ("
       + "uuid BINARY(16) PRIMARY KEY"
       + ")"),
 
-  CREATE_ELEMENTS_TABLE("CREATE TABLE IF NOT EXISTS elements ("
-      + "id SERIAL PRIMARY KEY, "
-      + "identifier VARCHAR(16) NOT NULL UNIQUE"
-      + ")"),
-
-  CREATE_SUB_ELEMENTS_TABLE("CREATE TABLE IF NOT EXISTS sub_elements ("
-      + "id SERIAL PRIMARY KEY, "
-      + "element_id BIGINT UNSIGNED NOT NULL, "
-      + "identifier VARCHAR(16) NOT NULL UNIQUE, "
-      + "FOREIGN KEY (element_id) REFERENCES elements(id) ON DELETE CASCADE"
-      + ")"),
-
   CREATE_BENDER_ELEMENTS_TABLE("CREATE TABLE IF NOT EXISTS bender_elements ("
       + "bender_uuid BINARY(16) NOT NULL, "
-      + "element_id BIGINT UNSIGNED NOT NULL, "
-      + "PRIMARY KEY (bender_uuid, element_id), "
-      + "FOREIGN KEY (bender_uuid) REFERENCES benders(uuid) ON DELETE CASCADE, "
-      + "FOREIGN KEY (element_id) REFERENCES elements(id) ON DELETE CASCADE"
+      + "element VARCHAR(32) NOT NULL, "
+      + "PRIMARY KEY (bender_uuid, element), "
+      + "FOREIGN KEY (bender_uuid) REFERENCES benders(uuid) ON DELETE CASCADE"
       + ")"),
 
-  CREATE_BENDER_SUB_ELEMENTS_TABLE("CREATE TABLE IF NOT EXISTS bender_sub_elements ("
-      + "bender_uuid BINARY(16) NOT NULL, "
-      + "sub_element_id BIGINT UNSIGNED NOT NULL, "
-      + "PRIMARY KEY (bender_uuid, sub_element_id), "
-      + "FOREIGN KEY (bender_uuid) REFERENCES benders(uuid) ON DELETE CASCADE, "
-      + "FOREIGN KEY (sub_element_id) REFERENCES sub_elements(id) ON DELETE CASCADE"
-      + ")"),
 
-  /**
-   * Inserts a bender, or refreshes the username if the UUID already exists.
-   * Elements are stored separately in the {@code bender_elements} join table.
-   */
-  SAVE_BENDER("INSERT INTO benders (uuid) VALUES (?)");
+  // ---------------------------------------------------------------------------
+  // Runtime queries.
+  // ---------------------------------------------------------------------------
+
+  /** Existence check for a bender row. */
+  GET_BENDER("SELECT 1 FROM benders WHERE uuid = ?"),
+
+  /** All element enum names a bender possesses. */
+  GET_BENDER_ELEMENTS("SELECT element FROM bender_elements WHERE bender_uuid = ?"),
+
+  /** Insert the bender row if it does not already exist. */
+  SAVE_BENDER("INSERT IGNORE INTO benders (uuid) VALUES (?)"),
+
+  /** Clear a bender's element set before rewriting it (full-replace upsert). */
+  DELETE_BENDER_ELEMENTS("DELETE FROM bender_elements WHERE bender_uuid = ?"),
+
+  /** Add a single element to a bender. */
+  INSERT_BENDER_ELEMENT("INSERT IGNORE INTO bender_elements (bender_uuid, element) VALUES (?, ?)");
 
   @Getter
   private final String query;

@@ -4,7 +4,7 @@ import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
 import java.util.UUID;
 
 // Runtime bender
-public class OnlineBenderRegistry extends MapRegistry<UUID, OnlineBenderPlayer> {
+public final class OnlineBenderRegistry extends MapRegistry<UUID, OnlineBenderPlayer> {
 
   public OnlineBenderPlayer getOrThrow(UUID uuid) {
     OnlineBenderPlayer onlineBenderPlayer = get(uuid);
