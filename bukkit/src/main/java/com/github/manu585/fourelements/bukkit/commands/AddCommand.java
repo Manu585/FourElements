@@ -55,8 +55,7 @@ public class AddCommand extends FourElementsCommand {
     // Non-blocking lookup: only resolves players the server has already seen.
     OfflinePlayer offline = Bukkit.getOfflinePlayerIfCached(name);
     if (offline == null) {
-      context.getSource().getSender().sendMessage(
-              Component.text("Never seen a player named " + name + ".", NamedTextColor.RED));
+      context.getSource().getSender().sendMessage(Component.text("Never seen a player named " + name + ".", NamedTextColor.RED));
       return 0;
     }
 

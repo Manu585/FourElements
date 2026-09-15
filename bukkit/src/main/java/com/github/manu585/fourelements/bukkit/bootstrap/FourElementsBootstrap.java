@@ -8,8 +8,11 @@ import com.github.manu585.fourelements.bukkit.commands.system.CommandSystem;
 import com.github.manu585.fourelements.bukkit.database.DatabaseManager;
 import com.github.manu585.fourelements.bukkit.database.SchemaMigrator;
 import com.github.manu585.fourelements.bukkit.listeners.ConnectionListeners;
+import com.github.manu585.fourelements.bukkit.listeners.bending.EnterBendingModeListener;
 import com.github.manu585.fourelements.bukkit.listeners.system.ListenerSystem;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
+import com.github.manu585.fourelements.bukkit.manager.bendermode.BendingModeCombination;
+import com.github.manu585.fourelements.bukkit.manager.bendermode.SimpleInput;
 import com.github.manu585.fourelements.bukkit.repository.MySqlBenderRepository;
 import com.github.manu585.fourelements.core.registry.OnlineBenderRegistry;
 import com.github.manu585.fourelements.core.repository.BenderRepository;
@@ -26,6 +29,7 @@ public final class FourElementsBootstrap {
   private final DatabaseManager databaseManager;
   private final BenderManager benderManager;
   private final OnlineBenderRegistry benderRegistry;
+  private final BendingModeCombination bendingModeCombination;
   private final FourElementsProviderImpl provider;
   private final List<PluginSystem> systems;
 
@@ -43,6 +47,12 @@ public final class FourElementsBootstrap {
 
     this.benderRegistry = new OnlineBenderRegistry();
     this.benderManager = new BenderManager(this.benderRegistry, this.benderRepository);
+    this.bendingModeCombination = new BendingModeCombination(List.of(
+        SimpleInput.of(true, false, false, false, false, false, false),  // forward
+        SimpleInput.of(true, false, false, false, false, false, false),   // forward
+        SimpleInput.of(false, true, false, false, false, false, false)   // backward
+    ), benderManager);
+
     this.provider = new FourElementsProviderImpl(benderManager);
     this.systems = assembleSystems();
   }
@@ -97,7 +107,7 @@ public final class FourElementsBootstrap {
    * @return Listener system
    */
   private PluginSystem listenerSystem() {
-    return new ListenerSystem(plugin, List.of(new ConnectionListeners(benderManager, benderRepository)));
+    return new ListenerSystem(plugin, List.of(new ConnectionListeners(benderManager, benderRepository), new EnterBendingModeListener(benderManager, bendingModeCombination)));
   }
 
   /**
