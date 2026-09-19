@@ -1,4 +1,4 @@
-package com.github.manu585.fourelements.bukkit.listeners.system;
+package com.github.manu585.fourelements.bukkit.systems;
 
 import com.github.manu585.fourelements.core.system.PluginSystem;
 import java.util.List;

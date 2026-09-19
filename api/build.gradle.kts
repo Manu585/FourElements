@@ -1,17 +1,10 @@
-repositories {
-    maven("https://repo.papermc.io/repository/maven-public/")
+plugins {
+    `java-library`
+    checkstyle
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
-}
-
-tasks.jar {
-    manifest {
-        attributes(
-            "Implementation-Title" to "FourElements-API",
-            "Implementation-Version" to project.version,
-            "Implementation-Vendor" to "manu585",
-        )
-    }
+    // Paper is provided by the server at runtime, but its types leak into the
+    // public API, so consumers need it on their compile classpath too.
+    compileOnlyApi(libs.paper.api)
 }

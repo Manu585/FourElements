@@ -1,9 +1,9 @@
 name: FourElements
-version: 'Alpha-0.0.1'
+version: '${version}'
 main: com.github.manu585.fourelements.bukkit.FourElementsPlugin
 loader: com.github.manu585.fourelements.bukkit.loader.FourElementsPluginLoader
 description: Minecraft bending plugin inspired by Avatar the last Airbender.
-api-version: '26.1.2'
+api-version: '26.2'
 author: Manunu_
 website: https://gogg-tech.com
 

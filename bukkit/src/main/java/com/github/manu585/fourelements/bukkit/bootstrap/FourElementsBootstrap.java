@@ -4,12 +4,12 @@ import com.github.manu585.fourelements.api.FourElementsApi;
 import com.github.manu585.fourelements.bukkit.api.FourElementsProviderImpl;
 import com.github.manu585.fourelements.bukkit.commands.AddCommand;
 import com.github.manu585.fourelements.bukkit.commands.InfoCommand;
-import com.github.manu585.fourelements.bukkit.commands.system.CommandSystem;
+import com.github.manu585.fourelements.bukkit.systems.CommandSystem;
 import com.github.manu585.fourelements.bukkit.database.DatabaseManager;
 import com.github.manu585.fourelements.bukkit.database.SchemaMigrator;
 import com.github.manu585.fourelements.bukkit.listeners.ConnectionListeners;
 import com.github.manu585.fourelements.bukkit.listeners.bending.EnterBendingModeListener;
-import com.github.manu585.fourelements.bukkit.listeners.system.ListenerSystem;
+import com.github.manu585.fourelements.bukkit.systems.ListenerSystem;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
 import com.github.manu585.fourelements.bukkit.manager.bendermode.BendingModeCombination;
 import com.github.manu585.fourelements.bukkit.manager.bendermode.SimpleInput;
@@ -48,9 +48,7 @@ public final class FourElementsBootstrap {
     this.benderRegistry = new OnlineBenderRegistry();
     this.benderManager = new BenderManager(this.benderRegistry, this.benderRepository);
     this.bendingModeCombination = new BendingModeCombination(List.of(
-        SimpleInput.of(true, false, false, false, false, false, false),  // forward
-        SimpleInput.of(true, false, false, false, false, false, false),   // forward
-        SimpleInput.of(false, true, false, false, false, false, false)   // backward
+        SimpleInput.of(true, false, false, false, false, false, false)  // forward
     ), benderManager);
 
     this.provider = new FourElementsProviderImpl(benderManager);
@@ -107,7 +105,10 @@ public final class FourElementsBootstrap {
    * @return Listener system
    */
   private PluginSystem listenerSystem() {
-    return new ListenerSystem(plugin, List.of(new ConnectionListeners(benderManager, benderRepository), new EnterBendingModeListener(benderManager, bendingModeCombination)));
+    return new ListenerSystem(plugin, List.of(
+        new ConnectionListeners(benderManager, benderRepository),
+        new EnterBendingModeListener(benderManager, bendingModeCombination)
+    ));
   }
 
   /**

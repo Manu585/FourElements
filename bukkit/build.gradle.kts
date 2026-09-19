@@ -1,53 +1,89 @@
 plugins {
-    id("com.gradleup.shadow") version "9.4.2"
+    `java-library`
+    checkstyle
+    alias(libs.plugins.shadow)
 }
 
-repositories {
-    maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.codemc.io/repository/maven-releases/")
+/**
+ * Dependencies that Paper's library loader resolves at runtime instead of us
+ * shading them. They are compile-only here and their coordinates are written
+ * into the jar for FourElementsPluginLoader to read.
+ */
+val paperLibrary: Configuration = configurations.create("paperLibrary") {
+    isCanBeResolved = false
+    isCanBeConsumed = false
+}
+
+configurations.compileOnly {
+    extendsFrom(paperLibrary)
 }
 
 dependencies {
-    implementation(project(":api"))
-    implementation(project(":core"))
-    compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
-    compileOnly("com.github.retrooper:packetevents-spigot:2.12.1")
-    compileOnly("com.zaxxer:HikariCP:7.0.2")
-    compileOnly("com.mysql:mysql-connector-j:9.7.0")
+    implementation(project(":core")) // pulls in :api and paper-api transitively
+    compileOnly(libs.packetevents)
+
+    paperLibrary(libs.hikari)
+    paperLibrary(libs.mysql)
+}
+
+val generatePaperLibraries = tasks.register("generatePaperLibraries") {
+    group = "build"
+    description = "Writes the runtime library coordinates read by the Paper plugin loader."
+
+    val coordinates = providers.provider {
+        paperLibrary.dependencies.map { "${it.group}:${it.name}:${it.version}" }
+    }
+    val outputDir = layout.buildDirectory.dir("generated/paper-libraries")
+
+    inputs.property("coordinates", coordinates)
+    outputs.dir(outputDir)
+
+    doLast {
+        outputDir.get().file("paper-libraries.txt").asFile
+            .writeText(coordinates.get().joinToString("\n", postfix = "\n"))
+    }
+}
+
+sourceSets.main {
+    resources.srcDir(generatePaperLibraries)
+}
+
+tasks.processResources {
+    val props = mapOf("version" to project.version.toString())
+    inputs.properties(props)
+    filteringCharset = "UTF-8"
+    filesMatching("paper-plugin.yml") { expand(props) }
+}
+
+val deployPlugin = tasks.register<Copy>("deployPlugin") {
+    group = "deployment"
+    description = "Copies the shadow jar into the test server's plugins folder."
+
+    val defaultDir = rootProject.layout.projectDirectory.dir("run/plugins").asFile.path
+
+    from(tasks.shadowJar)
+    into(providers.gradleProperty("pluginDir").orElse(defaultDir))
+    rename { "${rootProject.name}.jar" }
 }
 
 tasks.shadowJar {
-    archiveFileName.set("${rootProject.name}-${project.version}-all.jar")
-
-    // Merge duplicate META-INF/services files from shaded libraries
+    archiveBaseName = rootProject.name
+    archiveClassifier = "all"
     mergeServiceFiles()
+    manifest.attributes(
+        "Implementation-Title" to rootProject.name,
+        "papermc-plugin-name" to rootProject.name,
+    )
 
-    manifest {
-        attributes(
-            "Implementation-Title" to rootProject.name,
-            "Implementation-Version" to project.version,
-            "Implementation-Vendor" to "Manu585",
-            "Multi-Release" to "true",
-            "papermc-plugin-name" to rootProject.name,
-        )
-    }
+    finalizedBy(deployPlugin)
 }
 
-// Make the standard lifecycle tasks depend on shadowJar instead of jar
-tasks.assemble { dependsOn(tasks.shadowJar) }
-
-tasks.processResources {
-    val props = mapOf("version" to version)
-    inputs.properties(props)
-    filteringCharset = "UTF-8"
-    filesMatching("paper-plugin.yml") {
-        expand(props)
-    }
+// The shadow jar is the only publishable output of this module: a thin jar
+// would be missing :api and :core.
+tasks.jar {
+    enabled = false
 }
 
-// ---------------------------------------------------------------------------
-// Disable the standard jar task so the shadow JAR is the only output.
-// This prevents the classloader from picking up a thin JAR that is missing
-// shaded dependencies (api, core, HikariCP, MySQL connector).
-// ---------------------------------------------------------------------------
-tasks.jar { enabled = false }
+tasks.assemble {
+    dependsOn(tasks.shadowJar)
+}

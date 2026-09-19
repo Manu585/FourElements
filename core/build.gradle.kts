@@ -1,13 +1,8 @@
-dependencies {
-    implementation(project(":api"))
+plugins {
+    `java-library`
+    checkstyle
 }
 
-tasks.jar {
-    manifest {
-        attributes(
-            "Implementation-Title" to "FourElements-Core",
-            "Implementation-Version" to project.version,
-            "Implementation-Vendor" to "manu585",
-        )
-    }
+dependencies {
+    api(project(":api"))
 }
