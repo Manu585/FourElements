@@ -18,6 +18,7 @@ import com.github.manu585.fourelements.core.registry.OnlineBenderRegistry;
 import com.github.manu585.fourelements.core.repository.BenderRepository;
 import com.github.manu585.fourelements.core.system.PluginSystem;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import org.bukkit.plugin.Plugin;
@@ -27,37 +28,31 @@ public final class FourElementsBootstrap {
 
   private final Plugin plugin;
   private final DatabaseManager databaseManager;
-  private final BenderManager benderManager;
-  private final OnlineBenderRegistry benderRegistry;
-  private final BendingModeCombination bendingModeCombination;
-  private final FourElementsProviderImpl provider;
-  private final List<PluginSystem> systems;
 
-  // Repositories
-  private final BenderRepository benderRepository;
+  private BenderManager benderManager;
+  private OnlineBenderRegistry benderRegistry;
+  private BendingModeCombination bendingModeCombination;
+  private FourElementsProviderImpl provider;
+  private List<PluginSystem> systems;
+  private BenderRepository benderRepository;
 
   public FourElementsBootstrap(Plugin plugin) throws SQLException {
     this.plugin = plugin;
     this.databaseManager = new DatabaseManager(plugin);
 
-    // Migrate DB
-    new SchemaMigrator(databaseManager, plugin.getLogger()).migrate();
-
-    this.benderRepository = new MySqlBenderRepository(databaseManager);
-
-    this.benderRegistry = new OnlineBenderRegistry();
-    this.benderManager = new BenderManager(this.benderRegistry, this.benderRepository);
-    this.bendingModeCombination = new BendingModeCombination(List.of(
-        SimpleInput.of(true, false, false, false, false, false, false)  // forward
-    ), benderManager);
-
-    this.provider = new FourElementsProviderImpl(benderManager);
-    this.systems = assembleSystems();
+    if (this.databaseManager.getConnection() == null || this.databaseManager.getConnection().isClosed()) {
+      plugin.getLogger().severe("No active Database connection.");
+      plugin.getServer().getPluginManager().disablePlugin(plugin);
+    }
   }
 
   public void onEnable() {
+    handleData();
+    initManagers();
+    initApi();
+    enableSystems();
+
     plugin.getLogger().info(plugin.getName() + " plugin enabled!");
-    systems.forEach(PluginSystem::enable);
     registerApi();
   }
 
@@ -72,6 +67,33 @@ public final class FourElementsBootstrap {
 
     databaseManager.close();
     plugin.getLogger().info(plugin.getName() + " plugin disabled.");
+  }
+
+  private void handleData() {
+    try {
+      new SchemaMigrator(databaseManager, plugin.getLogger()).migrate();
+    } catch (SQLException e) {
+      plugin.getLogger().severe(e.getMessage());
+      plugin.getServer().getPluginManager().disablePlugin(plugin);
+      return;
+    }
+
+    this.benderRepository = new MySqlBenderRepository(databaseManager);
+    this.benderRegistry = new OnlineBenderRegistry();
+  }
+
+  private void initManagers() {
+    this.benderManager = new BenderManager(this.benderRegistry, this.benderRepository);
+    this.bendingModeCombination = new BendingModeCombination(List.of(SimpleInput.of(true, false, false, false, false, false, false)), benderManager);
+  }
+
+  private void initApi() {
+    this.provider = new FourElementsProviderImpl(this.benderManager);
+  }
+
+  private void enableSystems() {
+    systems = assembleSystems();
+    systems.forEach(PluginSystem::enable);
   }
 
   /**

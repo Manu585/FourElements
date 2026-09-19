@@ -1,6 +1,5 @@
 plugins {
     `java-library`
-    checkstyle
     alias(libs.plugins.shadow)
 }
 

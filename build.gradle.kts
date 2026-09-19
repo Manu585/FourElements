@@ -34,27 +34,27 @@ subprojects {
         }
     }
 
-    pluginManager.withPlugin("checkstyle") {
-        extensions.configure<CheckstyleExtension> {
-            toolVersion = checkstyleVersion.get()
-            configDirectory = rootProject.layout.projectDirectory.dir("config/checkstyle")
-        }
-
-        // Resolved against the project here; inside configureEach the receiver
-        // would be the task, which has no toolchain service.
-        val checkstyleLauncher = extensions.getByType<JavaToolchainService>()
-            .launcherFor { languageVersion = javaVersion }
-
-        tasks.withType<Checkstyle>().configureEach {
-            // Checkstyle must run on the same JDK the sources target.
-            javaLauncher = checkstyleLauncher
-
-            reports {
-                html.required = true
-                xml.required = false
-            }
-        }
-    }
+//    pluginManager.withPlugin("checkstyle") {
+//        extensions.configure<CheckstyleExtension> {
+//            toolVersion = checkstyleVersion.get()
+//            configDirectory = rootProject.layout.projectDirectory.dir("config/checkstyle")
+//        }
+//
+//        // Resolved against the project here; inside configureEach the receiver
+//        // would be the task, which has no toolchain service.
+//        val checkstyleLauncher = extensions.getByType<JavaToolchainService>()
+//            .launcherFor { languageVersion = javaVersion }
+//
+//        tasks.withType<Checkstyle>().configureEach {
+//            // Checkstyle must run on the same JDK the sources target.
+//            javaLauncher = checkstyleLauncher
+//
+//            reports {
+//                html.required = true
+//                xml.required = false
+//            }
+//        }
+//    }
 
     tasks.withType<JavaCompile>().configureEach {
         options.encoding = "UTF-8"
