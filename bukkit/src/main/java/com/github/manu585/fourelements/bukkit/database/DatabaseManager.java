@@ -3,40 +3,40 @@ package com.github.manu585.fourelements.bukkit.database;
 import com.github.manu585.fourelements.bukkit.executor.DatabaseExecutorPool;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
 
-// TODO: Ugly class, fix in future
+/**
+ * Owns the connection pool and the executor database work runs on.
+ *
+ * <p>An instance only exists once the database has been reached, see {@link #connect}.
+ */
 public final class DatabaseManager {
 
   private final HikariDataSource dataSource;
   private final DatabaseExecutorPool executorPool;
 
-  public DatabaseManager(Plugin plugin) {
-    FileConfiguration config = plugin.getConfig();
+  private DatabaseManager(HikariDataSource dataSource, DatabaseExecutorPool executorPool) {
+    this.dataSource = dataSource;
+    this.executorPool = executorPool;
+  }
 
-    int port = config.getInt("database.port");
-    String host = config.getString("database.host");
-    String database = config.getString("database.database");
-
-    HikariConfig hikariConfig = new HikariConfig();
-    hikariConfig.setJdbcUrl(String.format("jdbc:mysql://%s:%d/%s?useSSL=false&allowPublicKeyRetrieval=true", host, port, database));
-    hikariConfig.setUsername(config.getString("database.username"));
-    hikariConfig.setPassword(config.getString("database.password"));
-    hikariConfig.setMaximumPoolSize(config.getInt("database.pool-size"));
-    hikariConfig.setConnectionTimeout(config.getInt("database.connection-timeout"));
-    hikariConfig.setPoolName("FourElements-HikariPool");
-
-    hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
-    hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
-    hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-    hikariConfig.addDataSourceProperty("useServerPrepStmts", "true");
-
-    this.dataSource = new HikariDataSource(hikariConfig);
-    this.executorPool = new DatabaseExecutorPool(hikariConfig.getMaximumPoolSize());
+  /**
+   * Opens the connection pool, failing fast if the database cannot be reached.
+   *
+   * @throws SQLException if no connection could be established, its message is the root cause
+   */
+  public static DatabaseManager connect(DatabaseSettings settings) throws SQLException {
+    HikariDataSource dataSource;
+    try {
+      // Hikari opens a first connection right here and throws if that fails
+      dataSource = new HikariDataSource(hikariConfig(settings));
+    } catch (PoolInitializationException e) {
+      throw new SQLException(rootMessage(e), e);
+    }
+    return new DatabaseManager(dataSource, new DatabaseExecutorPool(settings.poolSize()));
   }
 
   public Connection getConnection() throws SQLException {
@@ -49,13 +49,36 @@ public final class DatabaseManager {
 
   public void close() {
     executorPool.shutdown();
-    if (dataSource != null &&  !dataSource.isClosed()) {
-      dataSource.close();
-    }
+    dataSource.close();
   }
 
-  public boolean isConnected() {
-    return dataSource != null && !dataSource.isClosed();
+  private static HikariConfig hikariConfig(DatabaseSettings settings) {
+    HikariConfig hikariConfig = new HikariConfig();
+    hikariConfig.setJdbcUrl(settings.jdbcUrl());
+    hikariConfig.setUsername(settings.username());
+    hikariConfig.setPassword(settings.password());
+    hikariConfig.setMaximumPoolSize(settings.poolSize());
+    hikariConfig.setConnectionTimeout(settings.connectionTimeoutMillis());
+    hikariConfig.setPoolName("FourElements-HikariPool");
+
+    hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
+    hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
+    hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+    hikariConfig.addDataSourceProperty("useServerPrepStmts", "true");
+    return hikariConfig;
+  }
+
+  /**
+   * The driver wraps the actual reason several layers deep in multi-line messages,
+   * the innermost one is the part worth showing to an admin.
+   */
+  private static String rootMessage(Throwable throwable) {
+    Throwable root = throwable;
+    while (root.getCause() != null) {
+      root = root.getCause();
+    }
+    String message = root.getMessage();
+    return message == null ? root.getClass().getSimpleName() : message.lines().findFirst().orElse(message);
   }
 
 }

@@ -1,143 +1,144 @@
 package com.github.manu585.fourelements.bukkit.bootstrap;
 
 import com.github.manu585.fourelements.api.FourElementsApi;
-import com.github.manu585.fourelements.bukkit.api.FourElementsProviderImpl;
 import com.github.manu585.fourelements.bukkit.commands.AddCommand;
 import com.github.manu585.fourelements.bukkit.commands.InfoCommand;
-import com.github.manu585.fourelements.bukkit.systems.CommandSystem;
 import com.github.manu585.fourelements.bukkit.database.DatabaseManager;
+import com.github.manu585.fourelements.bukkit.database.DatabaseSettings;
 import com.github.manu585.fourelements.bukkit.database.SchemaMigrator;
 import com.github.manu585.fourelements.bukkit.listeners.ConnectionListeners;
 import com.github.manu585.fourelements.bukkit.listeners.bending.EnterBendingModeListener;
+import com.github.manu585.fourelements.bukkit.systems.CommandSystem;
 import com.github.manu585.fourelements.bukkit.systems.ListenerSystem;
-import com.github.manu585.fourelements.bukkit.manager.BenderManager;
-import com.github.manu585.fourelements.bukkit.manager.bendermode.BendingModeCombination;
-import com.github.manu585.fourelements.bukkit.manager.bendermode.SimpleInput;
-import com.github.manu585.fourelements.bukkit.repository.MySqlBenderRepository;
-import com.github.manu585.fourelements.core.registry.OnlineBenderRegistry;
-import com.github.manu585.fourelements.core.repository.BenderRepository;
 import com.github.manu585.fourelements.core.system.PluginSystem;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.NonNull;
 
-@Getter
+/**
+ * Composition root of the plugin.
+ *
+ * <p>{@link #start} runs the startup phases in order and only hands out an instance once
+ * all of them succeeded, so a bootstrap is always fully started and never half-built:
+ *
+ * <ol>
+ *   <li>{@code connectDatabase}: open the pool, abort if the database is unreachable</li>
+ *   <li>{@code migrateSchema}: bring the db schema up to the latest version</li>
+ *   <li>{@code wireServices}: build repositories, managers and the API provider</li>
+ *   <li>{@code enableSystems}: register commands and listeners</li>
+ *   <li>{@code publishApi}: expose the provider through {@link FourElementsApi}</li>
+ * </ol>
+ *
+ * <p>{@link #shutdown} undoes them in reverse.
+ */
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FourElementsBootstrap {
 
   private final Plugin plugin;
-  private final DatabaseManager databaseManager;
+  private final DatabaseManager database;
+  private final Services services;
+  private final List<PluginSystem> systems;
 
-  private BenderManager benderManager;
-  private OnlineBenderRegistry benderRegistry;
-  private BendingModeCombination bendingModeCombination;
-  private FourElementsProviderImpl provider;
-  private List<PluginSystem> systems;
-  private BenderRepository benderRepository;
-
-  public FourElementsBootstrap(Plugin plugin) throws SQLException {
-    this.plugin = plugin;
-    this.databaseManager = new DatabaseManager(plugin);
-
-    if (this.databaseManager.getConnection() == null || this.databaseManager.getConnection().isClosed()) {
-      plugin.getLogger().severe("No active Database connection.");
-      plugin.getServer().getPluginManager().disablePlugin(plugin);
-    }
-  }
-
-  public void onEnable() {
-    handleData();
-    initManagers();
-    initApi();
-    enableSystems();
-
-    plugin.getLogger().info(plugin.getName() + " plugin enabled!");
-    registerApi();
-  }
-
-  public void onDisable() {
-    // Persist everyone still online before tearing anything down
-    benderManager.online().forEach(online -> benderRepository.saveBender(online.benderPlayer()).join());
-
-    // Reverse order to mirror setup
-    for (int i = systems.size() - 1; i >= 0; i--) {
-      systems.get(i).disable();
-    }
-
-    databaseManager.close();
-    plugin.getLogger().info(plugin.getName() + " plugin disabled.");
-  }
-
-  private void handleData() {
+  /**
+   * Starts the plugin.
+   *
+   * @throws StartupException if a phase failed for an expected reason, everything opened
+   *     up to that point has already been released again
+   */
+  public static FourElementsBootstrap start(Plugin plugin) throws StartupException {
+    DatabaseManager database = connectDatabase(plugin);
     try {
-      new SchemaMigrator(databaseManager, plugin.getLogger()).migrate();
-    } catch (SQLException e) {
-      plugin.getLogger().severe(e.getMessage());
-      plugin.getServer().getPluginManager().disablePlugin(plugin);
-      return;
+      migrateSchema(plugin, database);
+      Services services = wireServices(database);
+      List<PluginSystem> systems = enableSystems(plugin, services);
+      publishApi(services);
+
+      plugin.getLogger().info(plugin.getName() + " enabled!");
+      return new FourElementsBootstrap(plugin, database, services, systems);
+    } catch (StartupException | RuntimeException e) {
+      database.close();
+      throw e;
     }
-
-    this.benderRepository = new MySqlBenderRepository(databaseManager);
-    this.benderRegistry = new OnlineBenderRegistry();
   }
 
-  private void initManagers() {
-    this.benderManager = new BenderManager(this.benderRegistry, this.benderRepository);
-    this.bendingModeCombination = new BendingModeCombination(List.of(SimpleInput.of(true, false, false, false, false, false, false)), benderManager);
+  public void shutdown() {
+    saveOnlineBenders();
+    disableSystems();
+    database.close();
+
+    plugin.getLogger().info(plugin.getName() + " disabled.");
   }
 
-  private void initApi() {
-    this.provider = new FourElementsProviderImpl(this.benderManager);
+  // ---- Startup phases ----
+
+  private static @NonNull DatabaseManager connectDatabase(@NonNull Plugin plugin) throws StartupException {
+    DatabaseSettings settings = DatabaseSettings.from(plugin.getConfig());
+    try {
+      return DatabaseManager.connect(settings);
+    } catch (SQLException e) {
+      throw new StartupException("No database connection to " + settings.address() + " (" + e.getMessage() + ")", e);
+    } catch (IllegalArgumentException | IllegalStateException e) {
+      throw new StartupException("Invalid database settings in config.yml (" + e.getMessage() + ")", e);
+    }
   }
 
-  private void enableSystems() {
-    systems = assembleSystems();
-    systems.forEach(PluginSystem::enable);
+  private static void migrateSchema(@NonNull Plugin plugin, DatabaseManager database) throws StartupException {
+    try {
+      new SchemaMigrator(database, plugin.getLogger()).migrate();
+    } catch (SQLException e) {
+      String reason = e.getCause() != null ? e.getMessage() + ": " + e.getCause().getMessage() : e.getMessage();
+      throw new StartupException("Database schema migration failed (" + reason + ")", e);
+    }
   }
 
-  /**
-   * Assemble plugin's systems
-   * including Listeners and Commands
-   *
-   * @return List of assembled Systems
-   */
-  private List<PluginSystem> assembleSystems() {
-    return List.of(
-        commandSystem(),
-        listenerSystem()
+  private static @NonNull Services wireServices(DatabaseManager database) {
+    return Services.wire(database);
+  }
+
+  private static @NonNull List<PluginSystem> enableSystems(Plugin plugin, Services services) {
+    List<PluginSystem> systems = List.of(
+        commandSystem(plugin, services),
+        listenerSystem(plugin, services)
     );
+    systems.forEach(PluginSystem::enable);
+    return systems;
   }
 
-  /**
-   * Build command system.
-   *
-   * @return Command System
-   */
-  private PluginSystem commandSystem() {
+  private static void publishApi(Services services) {
+    FourElementsApi.setProvider(services.provider());
+  }
+
+  // ---- Shutdown phases ----
+
+  private void saveOnlineBenders() {
+    services.benderManager().online().forEach(online -> services.benderRepository().saveBender(online.benderPlayer()).join());
+  }
+
+  private void disableSystems() {
+    // Reverse order to mirror startup
+    systems.reversed().forEach(PluginSystem::disable);
+  }
+
+  // ---- Systems ----
+
+  @Contract("_, _ -> new")
+  private static @NonNull PluginSystem commandSystem(Plugin plugin, @NonNull Services services) {
     return new CommandSystem(plugin, List.of(
-        new InfoCommand(benderManager),
-        new AddCommand(benderManager)
+        new InfoCommand(services.benderManager()),
+        new AddCommand(services.benderManager())
     ));
   }
 
-  /**
-   * Build listener system.
-   *
-   * @return Listener system
-   */
-  private PluginSystem listenerSystem() {
+  @Contract("_, _ -> new")
+  private static @NonNull PluginSystem listenerSystem(Plugin plugin, @NonNull Services services) {
     return new ListenerSystem(plugin, List.of(
-        new ConnectionListeners(benderManager, benderRepository),
-        new EnterBendingModeListener(benderManager, bendingModeCombination)
+        new ConnectionListeners(services.benderManager(), services.benderRepository()),
+        new EnterBendingModeListener(services.benderManager(), services.bendingModeCombination())
     ));
-  }
-
-  /**
-   * Registers the {@link FourElementsApi} provider.
-   */
-  private void registerApi() {
-    FourElementsApi.setProvider(provider);
   }
 
 }
