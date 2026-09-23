@@ -58,7 +58,7 @@ public final class BenderManager {
   }
 
   public OnlineBenderPlayer getBender(UUID uuid) {
-    return registry.get(uuid);
+    return registry.getOrThrow(uuid);
   }
 
   public boolean isOnline(UUID uuid) {

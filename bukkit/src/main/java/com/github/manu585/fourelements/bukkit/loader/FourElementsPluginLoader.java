@@ -12,14 +12,14 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.jspecify.annotations.NonNull;
 
 public class FourElementsPluginLoader implements PluginLoader {
 
   private static final String LIBRARIES_RESOURCE = "paper-libraries.txt";
 
-
   @Override
-  public void classloader(PluginClasspathBuilder classpathBuilder) {
+  public void classloader(@NonNull PluginClasspathBuilder classpathBuilder) {
     MavenLibraryResolver resolver = new MavenLibraryResolver();
 
     resolver.addRepository(new RemoteRepository.Builder("central", "default", MavenLibraryResolver.MAVEN_CENTRAL_DEFAULT_MIRROR).build());
@@ -32,8 +32,7 @@ public class FourElementsPluginLoader implements PluginLoader {
   }
 
   private static List<String> readLibraries() {
-    try (InputStream in = FourElementsPluginLoader.class.getClassLoader()
-        .getResourceAsStream(LIBRARIES_RESOURCE)) {
+    try (InputStream in = FourElementsPluginLoader.class.getClassLoader().getResourceAsStream(LIBRARIES_RESOURCE)) {
       if (in == null) {
         throw new IllegalStateException(LIBRARIES_RESOURCE + " fehlt in der Plugin-JAR");
       }

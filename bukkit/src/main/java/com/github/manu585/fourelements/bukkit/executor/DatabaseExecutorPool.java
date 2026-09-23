@@ -12,7 +12,10 @@ public final class DatabaseExecutorPool {
 
   private final ExecutorService executor;
 
-  public DatabaseExecutorPool(int poolSize) {
+  public DatabaseExecutorPool(final int poolSize) {
+    if (poolSize <= 0) {
+      throw new IllegalArgumentException("Pool size must be greater than 0!");
+    }
     this.executor = Executors.newFixedThreadPool(poolSize, daemonThreadFactory());
   }
 
