@@ -24,7 +24,7 @@ public class EnterBendingModeListener implements Listener {
     Bender bender = benderManager.getBender(player.getUniqueId());
 
     // Null or not a bender
-    if (bender == null || bender.elements().isEmpty()) return;
+    if (bender.elements().isEmpty()) return;
 
     combination.processInput(player.getUniqueId(), player.getCurrentInput());
   }

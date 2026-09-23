@@ -31,7 +31,7 @@ public class InfoCommand extends FourElementsCommand {
   private void showElement(Player player, CommandContext<CommandSourceStack> context) {
     Bender bender = benderManager.getBender(player.getUniqueId());
 
-    if (bender == null || bender.elements().isEmpty()) {
+    if (bender.elements().isEmpty()) {
       player.sendMessage(Component.text("You are not a bender yet.", NamedTextColor.GRAY));
       return;
     }
