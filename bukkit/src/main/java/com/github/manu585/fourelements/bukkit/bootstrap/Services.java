@@ -24,8 +24,9 @@ record Services(BenderRepository benderRepository, BenderManager benderManager, 
     BenderRepository benderRepository = new MySqlBenderRepository(database);
     BenderManager benderManager = new BenderManager(new OnlineBenderRegistry(), benderRepository);
     BendingModeCombination bendingModeCombination = new BendingModeCombination(List.of(SimpleInput.of(true, false, false, false, false, false, false)), benderManager);
+    FourElementsProviderImpl fourElementsProvider = new FourElementsProviderImpl(benderManager);
 
-    return new Services(benderRepository, benderManager, bendingModeCombination, new FourElementsProviderImpl(benderManager));
+    return new Services(benderRepository, benderManager, bendingModeCombination, fourElementsProvider);
   }
 
 }

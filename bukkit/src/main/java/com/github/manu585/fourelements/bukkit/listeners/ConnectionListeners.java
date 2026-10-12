@@ -1,9 +1,7 @@
 package com.github.manu585.fourelements.bukkit.listeners;
 
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
-import com.github.manu585.fourelements.core.bender.BenderPlayer;
 import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
-import com.github.manu585.fourelements.core.repository.BenderRepository;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -18,7 +16,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
  *
  * <ol>
  *   <li><b>Load</b> ({@link AsyncPlayerPreLoginEvent}) off the main thread, block on the
- *       repository to fetch (or create) the bender, then stash it as pending.</li>
+ *       manager to fetch (or create) the bender and stash it as pending.</li>
  *   <li><b>Attach</b> ({@link PlayerJoinEvent})  on the main thread, promote the pending
  *       bender to an online runtime object.</li>
  *   <li><b>Persist &amp; evict</b> ({@link PlayerQuitEvent}) remove the online bender and
@@ -28,11 +26,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class ConnectionListeners implements Listener {
 
   private final BenderManager benderManager;
-  private final BenderRepository benderRepository;
 
-  public ConnectionListeners(BenderManager benderManager, BenderRepository benderRepository) {
+  public ConnectionListeners(BenderManager benderManager) {
     this.benderManager = benderManager;
-    this.benderRepository = benderRepository;
   }
 
   @EventHandler
@@ -40,12 +36,8 @@ public class ConnectionListeners implements Listener {
     UUID uuid = event.getUniqueId();
 
     try {
-      BenderPlayer benderPlayer = benderRepository.getBender(uuid).join();
-      if (benderPlayer == null) {
-        // First ever login
-        benderPlayer = new BenderPlayer(uuid);
-      }
-      benderManager.markPending(benderPlayer);
+      // Queued behind pending edits/saves for this UUID, so the loaded state is current
+      benderManager.load(uuid).join();
     } catch (Exception e) {
       // Load failed
       event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Component.text("Could not load your bender data. Please try again.", NamedTextColor.RED));
@@ -72,7 +64,7 @@ public class ConnectionListeners implements Listener {
       return;
     }
 
-    benderRepository.saveBender(online.benderPlayer());
+    benderManager.save(online.benderPlayer());
   }
 
 }

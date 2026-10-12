@@ -1,12 +1,11 @@
 package com.github.manu585.fourelements.bukkit;
 
 import com.github.manu585.fourelements.bukkit.bootstrap.FourElementsBootstrap;
-import com.github.manu585.fourelements.bukkit.bootstrap.StartupException;
+import com.github.manu585.fourelements.core.exceptions.StartupException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class FourElementsPlugin extends JavaPlugin {
 
-  // Stays null when startup was aborted. Cannot be final, Bukkit owns the constructor
   private FourElementsBootstrap bootstrap;
 
   @Override

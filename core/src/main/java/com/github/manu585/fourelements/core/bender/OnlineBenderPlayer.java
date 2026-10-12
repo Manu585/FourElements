@@ -22,6 +22,7 @@ public class OnlineBenderPlayer implements Bender {
   @Setter
   @Getter
   private boolean inBendingMode;
+  private double chi;
 
   public OnlineBenderPlayer(BenderPlayer benderPlayer) {
     this.benderPlayer = benderPlayer;

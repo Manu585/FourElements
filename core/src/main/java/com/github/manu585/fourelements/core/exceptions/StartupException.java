@@ -1,4 +1,4 @@
-package com.github.manu585.fourelements.bukkit.bootstrap;
+package com.github.manu585.fourelements.core.exceptions;
 
 /**
  * An expected startup failure (database unreachable, migration failed, etc.)

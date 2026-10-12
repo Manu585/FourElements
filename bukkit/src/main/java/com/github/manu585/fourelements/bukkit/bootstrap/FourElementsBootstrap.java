@@ -10,6 +10,7 @@ import com.github.manu585.fourelements.bukkit.listeners.ConnectionListeners;
 import com.github.manu585.fourelements.bukkit.listeners.bending.EnterBendingModeListener;
 import com.github.manu585.fourelements.bukkit.systems.CommandSystem;
 import com.github.manu585.fourelements.bukkit.systems.ListenerSystem;
+import com.github.manu585.fourelements.core.exceptions.StartupException;
 import com.github.manu585.fourelements.core.system.PluginSystem;
 import java.sql.SQLException;
 import java.util.List;
@@ -46,8 +47,7 @@ public final class FourElementsBootstrap {
   /**
    * Starts the plugin.
    *
-   * @throws StartupException if a phase failed for an expected reason, everything opened
-   *     up to that point has already been released again
+   * @throws StartupException if a phase failed for an expected reason, everything opened up to that point has already been released again
    */
   public static FourElementsBootstrap start(Plugin plugin) throws StartupException {
     DatabaseManager database = connectDatabase(plugin);
@@ -59,9 +59,9 @@ public final class FourElementsBootstrap {
 
       plugin.getLogger().info(plugin.getName() + " enabled!");
       return new FourElementsBootstrap(plugin, database, services, systems);
-    } catch (StartupException | RuntimeException e) {
+    } catch (StartupException | RuntimeException exception) {
       database.close();
-      throw e;
+      throw exception;
     }
   }
 
@@ -108,18 +108,17 @@ public final class FourElementsBootstrap {
     return systems;
   }
 
-  private static void publishApi(Services services) {
+  private static void publishApi(@NonNull Services services) {
     FourElementsApi.setProvider(services.provider());
   }
 
   // ---- Shutdown phases ----
 
   private void saveOnlineBenders() {
-    services.benderManager().online().forEach(online -> services.benderRepository().saveBender(online.benderPlayer()).join());
+    services.benderManager().online().forEach(online -> services.benderManager().save(online.benderPlayer()).join());
   }
 
   private void disableSystems() {
-    // Reverse order to mirror startup
     systems.reversed().forEach(PluginSystem::disable);
   }
 
@@ -136,7 +135,7 @@ public final class FourElementsBootstrap {
   @Contract("_, _ -> new")
   private static @NonNull PluginSystem listenerSystem(Plugin plugin, @NonNull Services services) {
     return new ListenerSystem(plugin, List.of(
-        new ConnectionListeners(services.benderManager(), services.benderRepository()),
+        new ConnectionListeners(services.benderManager()),
         new EnterBendingModeListener(services.benderManager(), services.bendingModeCombination())
     ));
   }

@@ -4,6 +4,7 @@ import com.github.manu585.fourelements.api.FourElementsProvider;
 import com.github.manu585.fourelements.api.bender.Bender;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
 import java.util.UUID;
+import org.jspecify.annotations.NonNull;
 
 public final class FourElementsProviderImpl implements FourElementsProvider {
 
@@ -14,7 +15,7 @@ public final class FourElementsProviderImpl implements FourElementsProvider {
   }
 
   @Override
-  public Bender getBender(UUID uuid) {
+  public @NonNull Bender getBender(UUID uuid) {
     return benderManager.getBender(uuid);
   }
 
