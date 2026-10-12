@@ -121,8 +121,7 @@ public final class BenderManager {
    * after another, never from the same stale state.
    *
    * @param uuid bender to edit
-   * @param edit mutation to apply to the {@link BenderPlayer}; its return value is passed
-   *     through to the caller (e.g. whether an element was newly added)
+   * @param edit mutation to apply to the {@link BenderPlayer}; its return value is passed through to the caller (e.g. whether an element was newly added)
    * @param <R>  result type of the edit
    * @return a future completing with the edit's result once persisted, or completing
    *     exceptionally if the edit throws or the load or save fails

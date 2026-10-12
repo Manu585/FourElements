@@ -13,7 +13,6 @@ val junitLauncher = libs.junit.platform.launcher
 
 subprojects {
     group = "com.github.manu585.fourelements"
-    version = "Alpha-0.0.1"
 
     // Each module applies its own plugins so the Kotlin DSL can generate
     // type-safe accessors for it; we only react to them here.

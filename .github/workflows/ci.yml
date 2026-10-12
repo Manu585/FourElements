@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # The Java toolchain in the build requires this exact JDK.
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      # gradlew is committed without the executable bit.
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      # `build` runs every module's tests and assembles the shadow jar.
+      # deployPlugin only copies into run/plugins for local testing.
+      - name: Build and test
+        run: ./gradlew build -x deployPlugin --stacktrace
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: "**/build/reports/tests/"
+          if-no-files-found: ignore
+
+      - name: Upload plugin jar
+        uses: actions/upload-artifact@v7
+        with:
+          name: FourElements
+          path: bukkit/build/libs/*-all.jar
+          if-no-files-found: error
