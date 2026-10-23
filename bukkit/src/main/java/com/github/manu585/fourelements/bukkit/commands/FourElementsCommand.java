@@ -5,13 +5,20 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Base for every FourElements sub-command.
@@ -131,6 +138,15 @@ public abstract class FourElementsCommand {
       return Command.SINGLE_SUCCESS;
     };
   }
+
+  protected static final SuggestionProvider<CommandSourceStack> ONLINE_PLAYERS = (_, builder) -> {
+    String input = builder.getRemainingLowerCase();
+    Bukkit.getOnlinePlayers().stream()
+        .map(Player::getName)
+        .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(input))
+        .forEach(builder::suggest);
+    return builder.buildFuture();
+  };
 
   /** A command body that requires a player executor. */
   @FunctionalInterface

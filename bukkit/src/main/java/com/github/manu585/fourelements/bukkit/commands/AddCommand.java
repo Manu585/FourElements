@@ -7,12 +7,8 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import java.util.Locale;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -39,7 +35,7 @@ public class AddCommand extends FourElementsCommand {
             .executes(player((sender, context) -> grant(context, sender.getUniqueId(), sender.getName())))
             // /elements add <element> <target>
             .then(argument("target", StringArgumentType.word())
-                    .suggests(this::suggestOnlinePlayers)
+                    .suggests(ONLINE_PLAYERS)
                     .executes(this::grantToTarget)));
   }
 
@@ -83,16 +79,6 @@ public class AddCommand extends FourElementsCommand {
                 sender.sendMessage(Component.text(targetName + " already has that element.", NamedTextColor.YELLOW));
               }
             });
-  }
-
-  private CompletableFuture<Suggestions> suggestOnlinePlayers(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
-    String input = builder.getRemainingLowerCase();
-    for (Player player : Bukkit.getOnlinePlayers()) {
-      if (player.getName().toLowerCase(Locale.ROOT).startsWith(input)) {
-        builder.suggest(player.getName());
-      }
-    }
-    return builder.buildFuture();
   }
 
 }
