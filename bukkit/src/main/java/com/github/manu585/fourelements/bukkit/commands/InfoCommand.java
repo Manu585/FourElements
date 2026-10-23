@@ -36,7 +36,12 @@ public class InfoCommand extends FourElementsCommand {
       return;
     }
 
-    Element element = bender.elements().getFirst();
+    Element element = bender.elements().stream().findFirst().orElse(null);
+
+    if (element == null) {
+      player.sendMessage(Component.text("You are not a bender.", NamedTextColor.GRAY));
+      return;
+    }
 
     player.sendMessage(
             Component.text("You are an", NamedTextColor.YELLOW)

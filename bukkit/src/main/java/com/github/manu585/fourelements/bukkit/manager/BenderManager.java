@@ -11,6 +11,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Owns the lifecycle of runtime benders and every database access made on their behalf.
@@ -134,12 +136,27 @@ public final class BenderManager {
     return ioQueue.submit(uuid, () -> editStored(uuid, edit));
   }
 
+  /**
+   * Grab a {@link BenderPlayer} either from the active registry or the pending Map.
+   *
+   * @param uuid UUID of Bender to get
+   * @return Existing {@link BenderPlayer}
+   */
   private BenderPlayer liveBender(UUID uuid) {
     OnlineBenderPlayer online = registry.get(uuid);
     return online != null ? online.benderPlayer() : pending.get(uuid);
   }
 
-  private static BenderPlayer snapshot(BenderPlayer benderPlayer) {
+  /**
+   * Creates an independent copy of the given bender for persistence.
+   *
+   * <p>The copy shares no mutable state with the original, so it can be handed to another
+   * thread while the original keeps being modified.
+   *
+   * @param benderPlayer bender to copy
+   * @return a detached copy with the same UUID and elements
+   */
+  private static @NonNull BenderPlayer snapshot(BenderPlayer benderPlayer) {
     return new BenderPlayer(benderPlayer.uuid(), benderPlayer.elements());
   }
 

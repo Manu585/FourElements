@@ -3,6 +3,8 @@ package com.github.manu585.fourelements.core.bender;
 import com.github.manu585.fourelements.api.bender.Bender;
 import com.github.manu585.fourelements.api.bending.Element;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +19,7 @@ import java.util.UUID;
 public class BenderPlayer implements Bender {
 
   private final UUID uuid;
-  private final Set<Element> elements;
+  private final EnumSet<Element> elements;
 
   public BenderPlayer(UUID uuid) {
     this(uuid, List.of());
@@ -25,7 +27,10 @@ public class BenderPlayer implements Bender {
 
   public BenderPlayer(UUID uuid, Collection<Element> elements) {
     this.uuid = uuid;
-    this.elements = elements == null ? new LinkedHashSet<>() : new LinkedHashSet<>(elements);
+    this.elements = EnumSet.noneOf(Element.class);
+    if (elements != null) {
+      this.elements.addAll(elements);
+    }
   }
 
   @Override
@@ -34,8 +39,8 @@ public class BenderPlayer implements Bender {
   }
 
   @Override
-  public List<Element> elements() {
-    return List.copyOf(elements);
+  public Set<Element> elements() {
+    return Collections.unmodifiableSet(elements);
   }
 
   /**

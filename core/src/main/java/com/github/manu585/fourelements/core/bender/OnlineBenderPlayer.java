@@ -3,6 +3,7 @@ package com.github.manu585.fourelements.core.bender;
 import com.github.manu585.fourelements.api.bender.Bender;
 import com.github.manu585.fourelements.api.bending.Element;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,7 +59,7 @@ public class OnlineBenderPlayer implements Bender {
   }
 
   @Override
-  public List<Element> elements() {
+  public Set<Element> elements() {
     return benderPlayer.elements();
   }
 

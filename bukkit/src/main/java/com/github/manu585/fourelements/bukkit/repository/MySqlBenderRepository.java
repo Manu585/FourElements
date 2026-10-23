@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -93,7 +94,7 @@ public class MySqlBenderRepository extends AbstractMySqlRepository implements Be
    * Full-replace of a bender's element set: clear the existing rows, then insert the
    * current ones. Simpler and less error-prone than diffing, and the sets are tiny.
    */
-  private void replaceElements(Connection connection, byte[] uuidBytes, List<Element> elements) throws SQLException {
+  private void replaceElements(Connection connection, byte[] uuidBytes, Set<Element> elements) throws SQLException {
     try (PreparedStatement delete = connection.prepareStatement(SqlQueries.DELETE_BENDER_ELEMENTS.getQuery())) {
       delete.setBytes(1, uuidBytes);
       delete.executeUpdate();
