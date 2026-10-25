@@ -1,3 +1,9 @@
+# Anonymous usage statistics sent to bStats (https://bstats.org): server count and how many
+# benders each element has. No player names or UUIDs are ever sent.
+# Set to false to turn it off for this plugin. (bStats can also be disabled for all
+# plugins in plugins/bStats/config.yml.)
+bstats: true
+
 database:
   host: "localhost"
   port: 3306
@@ -6,9 +12,3 @@ database:
   password: ""
   pool-size: 10
   connection-timeout: 5000
-
-# Anonymous usage statistics sent to bStats (https://bstats.org): server count and how many
-# benders each element has. No player names or UUIDs are ever sent.
-# Set to false to turn it off for this plugin. (bStats can also be disabled for all
-# plugins in plugins/bStats/config.yml.)
-bstats: true
