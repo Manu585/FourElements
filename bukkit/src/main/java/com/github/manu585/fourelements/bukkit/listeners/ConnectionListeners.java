@@ -48,13 +48,7 @@ public class ConnectionListeners implements Listener {
   public void onPlayerJoin(PlayerJoinEvent event) {
     UUID uuid = event.getPlayer().getUniqueId();
 
-    OnlineBenderPlayer online = benderManager.promote(uuid);
-    if (online == null) {
-      return;
-    }
-
-    // Default the active element to the first one the bender knows, if any.
-    online.elements().stream().findFirst().ifPresent(online::setActiveElement);
+    benderManager.promote(uuid);
   }
 
   @EventHandler

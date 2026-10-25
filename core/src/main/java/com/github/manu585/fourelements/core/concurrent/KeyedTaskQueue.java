@@ -38,34 +38,36 @@ public final class KeyedTaskQueue<K> {
     // Atomic swap, every task observes exactly one predecessor
     CompletableFuture<Void> previous = tails.put(key, tail);
 
-    Runnable run = () -> {
+    Runnable runnable = () -> {
       try {
-        task.get().whenComplete((value, error) -> {
+        task.get() // Starts the work -> returns a future
+            .whenComplete((value, error) -> {
+          // work finished, forward the outcome to the caller
           if (error != null) {
             result.completeExceptionally(error);
           } else {
             result.complete(value);
           }
-          finish(key, tail);
+          finish(key, tail); // release the next task in line
         });
       } catch (Throwable error) {
+        // task.get() itself threw (before returning a future)
         result.completeExceptionally(error);
         finish(key, tail);
       }
     };
 
-    if (previous == null) {
-      run.run();
+    if (previous == null) { // no task ahead
+      runnable.run(); // start immediately
     } else {
-      previous.whenComplete((ignored, ignoredError) -> run.run());
+      previous.whenComplete((ignored, ignoredError) -> runnable.run()); // wait on previous task
     }
     return result;
   }
 
   private void finish(K key, CompletableFuture<Void> tail) {
-    // Only clear the slot if no newer task has queued up behind this one
-    tails.remove(key, tail);
-    tail.complete(null);
+    tails.remove(key, tail); // remove only if the map still holds my tail
+    tail.complete(null); // wake up the next task
   }
 
 }

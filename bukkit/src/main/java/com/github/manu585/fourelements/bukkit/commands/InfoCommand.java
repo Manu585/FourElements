@@ -1,17 +1,20 @@
 package com.github.manu585.fourelements.bukkit.commands;
 
-import com.github.manu585.fourelements.api.bender.Bender;
 import com.github.manu585.fourelements.api.bending.Element;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
+import com.github.manu585.fourelements.bukkit.text.BendingText;
+import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 
 /**
- * {@code /elements who} tells a player which element they primarily bend.
+ * {@code /elements info} tells a player which element they bend, plus their Sub-Elements
+ * and, for the Avatar, the element they are currently channeling.
  * Open to everyone (no permission).
  */
 public class InfoCommand extends FourElementsCommand {
@@ -29,26 +32,29 @@ public class InfoCommand extends FourElementsCommand {
   }
 
   private void showElement(Player player, CommandContext<CommandSourceStack> context) {
-    Bender bender = benderManager.getBender(player.getUniqueId());
+    OnlineBenderPlayer bender = benderManager.getBender(player.getUniqueId());
 
-    if (bender.elements().isEmpty()) {
+    Element element = bender.element().orElse(null);
+    if (element == null) {
       player.sendMessage(Component.text("You are not a bender yet.", NamedTextColor.GRAY));
       return;
     }
 
-    Element element = bender.elements().stream().findFirst().orElse(null);
+    player.sendMessage(Component.text("Element: ", NamedTextColor.YELLOW)
+        .append(BendingText.name(element)));
 
-    if (element == null) {
-      player.sendMessage(Component.text("You are not a bender.", NamedTextColor.GRAY));
-      return;
+    if (!bender.subElements().isEmpty()) {
+      player.sendMessage(Component.text("Sub-elements: ", NamedTextColor.YELLOW)
+          .append(Component.join(JoinConfiguration.commas(true), bender.subElements().stream()
+              .map(BendingText::name)
+              .toList())));
     }
 
-    player.sendMessage(
-            Component.text("You are an", NamedTextColor.YELLOW)
-                    .appendSpace()
-                    .append(Component.text(element.displayName(), element.textColor()))
-                    .appendSpace()
-                    .append(Component.text("Bender", NamedTextColor.YELLOW)));
+    if (bender.isAvatar()) {
+      player.sendMessage(Component.text("You are the Avatar.", NamedTextColor.LIGHT_PURPLE));
+      bender.activeElement().ifPresent(active -> player.sendMessage(Component.text("Channeling: ", NamedTextColor.YELLOW)
+          .append(BendingText.name(active))));
+    }
   }
 
 }

@@ -30,10 +30,20 @@ public final class SchemaVersion {
   public static List<Migration> migrations() {
     return List.of(
         // Version 1: initial schema.
-        // Order matters! bender_elements references benders.
+        // Order matters! bender_sub_elements references benders.
         new Migration(1, List.of(
             SqlQueries.CREATE_BENDERS_TABLE.getQuery(),
-            SqlQueries.CREATE_BENDER_ELEMENTS_TABLE.getQuery()
+            SqlQueries.CREATE_BENDER_SUB_ELEMENTS_TABLE.getQuery()
+        )),
+        // Version 2: Avatar becomes a flag, chi is dropped as a bender type.
+        new Migration(2, List.of(
+            SqlQueries.ADD_BENDERS_AVATAR_COLUMN.getQuery(),
+            SqlQueries.MIGRATE_AVATAR_ROWS.getQuery(),
+            SqlQueries.MIGRATE_CHI_ROWS.getQuery()
+        )),
+        // Version 3: remember the element the Avatar is channeling.
+        new Migration(3, List.of(
+            SqlQueries.ADD_BENDERS_CHANNELED_ELEMENT_COLUMN.getQuery()
         ))
     );
   }

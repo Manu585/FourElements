@@ -18,7 +18,9 @@ configurations.compileOnly {
 }
 
 dependencies {
-    implementation(project(":core")) // pulls in :api and paper-api transitively
+    implementation(project(":core")) // pulls in :api transitively
+    implementation(libs.bstats) // shaded and relocated, see shadowJar
+    compileOnly(libs.paper.api)
     compileOnly(libs.packetevents)
 
     paperLibrary(libs.hikari)
@@ -38,8 +40,7 @@ val generatePaperLibraries = tasks.register("generatePaperLibraries") {
     outputs.dir(outputDir)
 
     doLast {
-        outputDir.get().file("paper-libraries.txt").asFile
-            .writeText(coordinates.get().joinToString("\n", postfix = "\n"))
+        outputDir.get().file("paper-libraries.txt").asFile.writeText(coordinates.get().joinToString("\n", postfix = "\n"))
     }
 }
 
@@ -66,6 +67,11 @@ val deployPlugin = tasks.register<Copy>("deployPlugin") {
 }
 
 tasks.shadowJar {
+    // Ships :core, :api and bStats. Everything else is either provided by the server (Paper,
+    // PacketEvents) or downloaded by the plugin loader (see paperLibrary).
+    // bStats must be relocated into our own namespace so it cannot clash with other plugins.
+    relocate("org.bstats", "${project.group}.bukkit.libs.bstats")
+
     archiveBaseName = rootProject.name
     archiveClassifier = "all"
     mergeServiceFiles()

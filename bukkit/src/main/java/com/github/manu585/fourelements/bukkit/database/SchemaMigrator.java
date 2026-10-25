@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 /**
@@ -20,12 +21,17 @@ import java.util.logging.Logger;
  *
  * <p><strong>Transaction caveat:</strong> in MySQL, DDL statements (such as
  * {@code CREATE TABLE}) trigger an implicit commit, so the surrounding transaction
- * cannot fully roll back a partially-applied DDL migration. Two things keep this safe:
- * the {@code CREATE TABLE IF NOT EXISTS} form makes re-runs harmless, and the
- * {@code schema_version} row — the single source of truth for what has been applied —
- * is written only after all statements succeed.
+ * cannot fully roll back a partially-applied DDL migration. Three things keep this safe:
+ * the {@code CREATE TABLE IF NOT EXISTS} form makes re-runs harmless, an
+ * {@code ALTER TABLE ... ADD COLUMN} whose column already exists (left behind by an earlier,
+ * interrupted run) is skipped instead of failing, and the {@code schema_version} row — the
+ * single source of truth for what has been applied — is written only after all statements
+ * succeed. Every migration must therefore be safe to run again from its first statement.
  */
 public final class SchemaMigrator {
+
+  // MySQL/MariaDB error code for "Duplicate column name"
+  private static final int ER_DUP_FIELDNAME = 1060;
 
   private final DatabaseManager databaseManager;
   private final Logger logger;
@@ -79,7 +85,7 @@ public final class SchemaMigrator {
 
     try (Statement statement = connection.createStatement()) {
       for (final String sql : migration.statements()) {
-        statement.execute(sql);
+        execute(statement, sql);
       }
       recordVersion(connection, migration.version());
 
@@ -91,6 +97,23 @@ public final class SchemaMigrator {
     } finally {
       connection.setAutoCommit(previousAutoCommit);
     }
+  }
+
+  private void execute(final Statement statement, final String sql) throws SQLException {
+    try {
+      statement.execute(sql);
+    } catch (final SQLException e) {
+      if (e.getErrorCode() == ER_DUP_FIELDNAME && isAddColumn(sql)) {
+        logger.warning("Column already exists, skipping (left over from an interrupted migration): " + sql);
+        return;
+      }
+      throw e;
+    }
+  }
+
+  private static boolean isAddColumn(final String sql) {
+    final String normalized = sql.trim().toUpperCase(Locale.ROOT);
+    return normalized.startsWith("ALTER TABLE") && normalized.contains(" ADD COLUMN ");
   }
 
   private void recordVersion(final Connection connection, final int version) throws SQLException {

@@ -3,7 +3,7 @@ version: '${version}'
 main: com.github.manu585.fourelements.bukkit.FourElementsPlugin
 loader: com.github.manu585.fourelements.bukkit.loader.FourElementsPluginLoader
 description: Minecraft bending plugin inspired by Avatar the last Airbender.
-api-version: '26.2'
+api-version: '26.3'
 author: Manunu_
 website: https://gogg-tech.com
 
@@ -26,14 +26,14 @@ permissions:
     description: all /elements subcommands
     default: op
     children:
-      fourelements.command.who: true
-      fourelements.command.choose: true
+      fourelements.command.set: true
+      fourelements.command.sub: true
 
-  fourelements.command.who:
-    description: view a players elements and other metadata
-    default: true
-  fourelements.command.choose:
-    description: ability to pick an element
+  fourelements.command.set:
+    description: set the main element of yourself or another player
+    default: op
+  fourelements.command.sub:
+    description: add or remove sub-elements of yourself or another player
     default: op
 
   fourelements.element.*:

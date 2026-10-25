@@ -19,41 +19,76 @@ public enum SqlQueries {
 
 
   // ---------------------------------------------------------------------------
-  // Schema DDL. Elements are stored by their Element enum name: the enum in code
-  // is the single source of truth for which elements (and sub-elements) exist and
-  // how they relate, so no separate reference/join tables are needed.
+  // Schema DDL. Elements are stored by their enum name: the enums in code are the
+  // single source of truth for which elements (and sub-elements) exist and how they
+  // relate, so no separate reference tables are needed. A bender has at most one main
+  // element (a nullable column), and any number of sub-elements (a child table).
   // ---------------------------------------------------------------------------
 
   CREATE_BENDERS_TABLE("CREATE TABLE IF NOT EXISTS benders ("
-      + "uuid BINARY(16) PRIMARY KEY"
+      + "uuid BINARY(16) PRIMARY KEY, "
+      + "element VARCHAR(32) NULL"
       + ")"),
 
-  CREATE_BENDER_ELEMENTS_TABLE("CREATE TABLE IF NOT EXISTS bender_elements ("
+  CREATE_BENDER_SUB_ELEMENTS_TABLE("CREATE TABLE IF NOT EXISTS bender_sub_elements ("
       + "bender_uuid BINARY(16) NOT NULL, "
-      + "element VARCHAR(32) NOT NULL, "
-      + "PRIMARY KEY (bender_uuid, element), "
+      + "sub_element VARCHAR(32) NOT NULL, "
+      + "PRIMARY KEY (bender_uuid, sub_element), "
       + "FOREIGN KEY (bender_uuid) REFERENCES benders(uuid) ON DELETE CASCADE"
       + ")"),
+
+
+  // ---------------------------------------------------------------------------
+  // The Avatar is a flag on top of the home element instead of an element
+  // value, and chi is no longer a bender type. Existing Avatars get Air as home element
+  // (their old row never recorded one), chi benders become non-benders.
+  // ---------------------------------------------------------------------------
+
+  ADD_BENDERS_AVATAR_COLUMN("ALTER TABLE benders ADD COLUMN avatar BOOLEAN NOT NULL DEFAULT FALSE"),
+
+  MIGRATE_AVATAR_ROWS("UPDATE benders SET avatar = TRUE, element = 'AIR' WHERE element = 'AVATAR'"),
+
+  MIGRATE_CHI_ROWS("UPDATE benders SET element = NULL WHERE element = 'CHI'"),
+
+
+  // ---------------------------------------------------------------------------
+  // Version 3: the element the Avatar is channeling now survives a relog. It is only
+  // meaningful while the avatar flag is set; the loader ignores it otherwise.
+  // ---------------------------------------------------------------------------
+
+  ADD_BENDERS_CHANNELED_ELEMENT_COLUMN("ALTER TABLE benders ADD COLUMN channeled_element VARCHAR(32) NULL"),
 
 
   // ---------------------------------------------------------------------------
   // Runtime queries.
   // ---------------------------------------------------------------------------
 
-  /** Existence check for a bender row. */
-  GET_BENDER("SELECT 1 FROM benders WHERE uuid = ?"),
+  /**
+   * A bender's row: its element enum name (NULL for a non-bender), whether it is the Avatar and the element the Avatar channels.
+   */
+  GET_BENDER("SELECT element, avatar, channeled_element FROM benders WHERE uuid = ?"),
 
-  /** All element enum names a bender possesses. */
-  GET_BENDER_ELEMENTS("SELECT element FROM bender_elements WHERE bender_uuid = ?"),
+  /**
+   * All sub-element enum names a bender possesses.
+   */
+  GET_BENDER_SUB_ELEMENTS("SELECT sub_element FROM bender_sub_elements WHERE bender_uuid = ?"),
 
-  /** Insert the bender row if it does not already exist. */
-  SAVE_BENDER("INSERT IGNORE INTO benders (uuid) VALUES (?)"),
+  /**
+   * Insert the bender row, or update its element and Avatar flag if it already exists.
+   */
+  SAVE_BENDER("INSERT INTO benders (uuid, element, avatar, channeled_element) VALUES (?, ?, ?, ?) "
+      + "ON DUPLICATE KEY UPDATE element = VALUES(element), avatar = VALUES(avatar), "
+      + "channeled_element = VALUES(channeled_element)"),
 
-  /** Clear a bender's element set before rewriting it (full-replace upsert). */
-  DELETE_BENDER_ELEMENTS("DELETE FROM bender_elements WHERE bender_uuid = ?"),
+  /**
+   * Clear a bender's sub-elements before rewriting them (full-replace upsert).
+   */
+  DELETE_BENDER_SUB_ELEMENTS("DELETE FROM bender_sub_elements WHERE bender_uuid = ?"),
 
-  /** Add a single element to a bender. */
-  INSERT_BENDER_ELEMENT("INSERT IGNORE INTO bender_elements (bender_uuid, element) VALUES (?, ?)");
+  /**
+   * Add a single sub-element to a bender.
+   */
+  INSERT_BENDER_SUB_ELEMENT("INSERT IGNORE INTO bender_sub_elements (bender_uuid, sub_element) VALUES (?, ?)");
 
   @Getter
   private final String query;

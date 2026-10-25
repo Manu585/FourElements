@@ -6,19 +6,15 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Base for every FourElements sub-command.
@@ -32,8 +28,6 @@ import org.jspecify.annotations.NonNull;
 public abstract class FourElementsCommand {
 
   private final String name;
-
-  /** Permission required to see and run the command, or {@code null} for an open command. */
   private final String permission;
 
   /**
@@ -46,7 +40,7 @@ public abstract class FourElementsCommand {
   }
 
   /**
-   * @param name       literal name of the command
+   * @param name literal name of the command
    * @param permission permission required to see/run it, or {@code null} for no gate
    */
   protected FourElementsCommand(String name, String permission) {
@@ -91,6 +85,7 @@ public abstract class FourElementsCommand {
    * A permission predicate over the command source, for gating individual nodes.
    *
    * @param permission permission to check
+   *
    * @return predicate suitable for {@code requires(...)}
    */
   protected Predicate<CommandSourceStack> requires(String permission) {
@@ -100,8 +95,9 @@ public abstract class FourElementsCommand {
   /**
    * A permission-gated child literal, for per-node (dynamic) permissions within a tree.
    *
-   * @param name       literal name
+   * @param name literal name
    * @param permission permission required to use this branch
+   *
    * @return a literal builder already gated by {@code permission}
    */
   protected LiteralArgumentBuilder<CommandSourceStack> literal(String name, String permission) {
@@ -113,7 +109,8 @@ public abstract class FourElementsCommand {
    *
    * @param name argument name used to look the value up in the context
    * @param type argument type (parsing + suggestions)
-   * @param <T>  parsed argument value type
+   * @param <T> parsed argument value type
+   *
    * @return the argument builder
    */
   protected <T> RequiredArgumentBuilder<CommandSourceStack, T> argument(String name, ArgumentType<T> type) {
@@ -125,13 +122,13 @@ public abstract class FourElementsCommand {
    * message, and reports {@link Command#SINGLE_SUCCESS} once the action runs.
    *
    * @param executor the action to run for a player source
+   *
    * @return a command usable in {@code executes(...)}
    */
   protected Command<CommandSourceStack> player(PlayerExecutor executor) {
     return context -> {
       if (!(context.getSource().getExecutor() instanceof Player player)) {
-        context.getSource().getSender().sendMessage(
-                Component.text("Only players can use this command.", NamedTextColor.RED));
+        context.getSource().getSender().sendMessage(Component.text("Only players can use this command.", NamedTextColor.RED));
         return 0;
       }
       executor.execute(player, context);
@@ -148,10 +145,14 @@ public abstract class FourElementsCommand {
     return builder.buildFuture();
   };
 
-  /** A command body that requires a player executor. */
+  /**
+   * A command body that requires a player executor.
+   */
   @FunctionalInterface
   protected interface PlayerExecutor {
+
     void execute(Player player, CommandContext<CommandSourceStack> context);
+
   }
 
 }

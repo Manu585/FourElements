@@ -1,8 +1,12 @@
 package com.github.manu585.fourelements.bukkit.bootstrap;
 
 import com.github.manu585.fourelements.api.FourElementsApi;
-import com.github.manu585.fourelements.bukkit.commands.AddCommand;
+import com.github.manu585.fourelements.bukkit.bstats.BstatsMetrics;
+import com.github.manu585.fourelements.bukkit.commands.AvatarCommand;
+import com.github.manu585.fourelements.bukkit.commands.ChooseCommand;
 import com.github.manu585.fourelements.bukkit.commands.InfoCommand;
+import com.github.manu585.fourelements.bukkit.commands.SetCommand;
+import com.github.manu585.fourelements.bukkit.commands.SubElementCommand;
 import com.github.manu585.fourelements.bukkit.database.DatabaseManager;
 import com.github.manu585.fourelements.bukkit.database.DatabaseSettings;
 import com.github.manu585.fourelements.bukkit.database.SchemaMigrator;
@@ -56,6 +60,12 @@ public final class FourElementsBootstrap {
       Services services = wireServices(database);
       List<PluginSystem> systems = enableSystems(plugin, services);
       publishApi(services);
+
+      if (plugin.getConfig().getBoolean("bstats", true)) {
+        new BstatsMetrics(plugin, services.benderManager());
+      } else {
+        plugin.getLogger().info("bStats is disabled in config.yml, no statistics are collected.");
+      }
 
       plugin.getLogger().info(plugin.getName() + " enabled!");
       return new FourElementsBootstrap(plugin, database, services, systems);
@@ -128,7 +138,10 @@ public final class FourElementsBootstrap {
   private static @NonNull PluginSystem commandSystem(Plugin plugin, @NonNull Services services) {
     return new CommandSystem(plugin, List.of(
         new InfoCommand(services.benderManager()),
-        new AddCommand(services.benderManager())
+        new SetCommand(services.benderManager()),
+        new AvatarCommand(services.benderManager()),
+        new SubElementCommand(services.benderManager()),
+        new ChooseCommand(services.benderManager())
     ));
   }
 

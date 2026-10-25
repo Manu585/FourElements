@@ -33,6 +33,7 @@ public final class BenderManager {
   // Benders loaded at pre-login, awaiting promotion when the player actually joins
   private final Map<UUID, BenderPlayer> pending = new ConcurrentHashMap<>();
 
+  // Keyed task queue to ensure concurrent calls
   private final KeyedTaskQueue<UUID> ioQueue = new KeyedTaskQueue<>();
 
   public BenderManager(OnlineBenderRegistry registry, BenderRepository repository) {
@@ -95,7 +96,7 @@ public final class BenderManager {
   }
 
   /**
-   * @return all currently online benders (unmodifiable view)
+   * @return all currently online benders
    */
   public Collection<OnlineBenderPlayer> online() {
     return registry.values();
@@ -154,10 +155,10 @@ public final class BenderManager {
    * thread while the original keeps being modified.
    *
    * @param benderPlayer bender to copy
-   * @return a detached copy with the same UUID and elements
+   * @return a detached copy with the same UUID, element, Avatar flag and sub-elements
    */
   private static @NonNull BenderPlayer snapshot(BenderPlayer benderPlayer) {
-    return new BenderPlayer(benderPlayer.uuid(), benderPlayer.elements());
+    return new BenderPlayer(benderPlayer.uuid(), benderPlayer.element().orElse(null), benderPlayer.isAvatar(), benderPlayer.activeElement().orElse(null), benderPlayer.subElements());
   }
 
   /**

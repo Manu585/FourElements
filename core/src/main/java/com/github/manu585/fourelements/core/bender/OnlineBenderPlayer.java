@@ -2,15 +2,14 @@ package com.github.manu585.fourelements.core.bender;
 
 import com.github.manu585.fourelements.api.bender.Bender;
 import com.github.manu585.fourelements.api.bending.Element;
-import java.util.List;
+import com.github.manu585.fourelements.api.bending.SubElement;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Runtime bender: an online player's {@link BenderPlayer} plus transient, session-only
- * state (active element, bending mode) that is never persisted.
+ * state (bending mode) that is never persisted.
  *
  * <p>Delegates the persistent {@link Bender} contract to the wrapped {@link BenderPlayer},
  * so an online bender can be used anywhere a {@link Bender} is expected.
@@ -19,10 +18,7 @@ public class OnlineBenderPlayer implements Bender {
 
   private final BenderPlayer benderPlayer;
 
-  private Element activeElement;
-  @Setter
-  @Getter
-  private boolean inBendingMode;
+  private BendingMode mode = BendingMode.PASSIVE;
   private double chi;
 
   public OnlineBenderPlayer(BenderPlayer benderPlayer) {
@@ -36,21 +32,23 @@ public class OnlineBenderPlayer implements Bender {
     return benderPlayer;
   }
 
-  public Element activeElement() {
-    return activeElement;
+  public BendingMode mode() {
+    return mode;
+  }
+
+  public void mode(BendingMode mode) {
+    this.mode = mode;
   }
 
   /**
-   * Set the element this bender is currently channeling.
+   * Let the Avatar switch to another of the four classical elements.
    *
-   * @param activeElement Element to activate; must be one the bender possesses
-   * @throws IllegalArgumentException if the bender does not possess the element
+   * @param choice Element to channel
+   * @return <code>true</code> if switched, <code>false</code> if this bender is not the Avatar
+   * @see BenderPlayer#channel(Element)
    */
-  public void setActiveElement(Element activeElement) {
-    if (!benderPlayer.hasElement(activeElement)) {
-      throw new IllegalArgumentException("Player " + uuid() + " does not possess element " + activeElement);
-    }
-    this.activeElement = activeElement;
+  public boolean chooseActiveElement(Element choice) {
+    return benderPlayer.channel(choice);
   }
 
   @Override
@@ -59,8 +57,23 @@ public class OnlineBenderPlayer implements Bender {
   }
 
   @Override
-  public Set<Element> elements() {
-    return benderPlayer.elements();
+  public Optional<Element> element() {
+    return benderPlayer.element();
+  }
+
+  @Override
+  public boolean isAvatar() {
+    return benderPlayer.isAvatar();
+  }
+
+  @Override
+  public Optional<Element> activeElement() {
+    return benderPlayer.activeElement();
+  }
+
+  @Override
+  public Set<SubElement> subElements() {
+    return benderPlayer.subElements();
   }
 
 }

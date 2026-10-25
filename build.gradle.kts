@@ -14,8 +14,7 @@ val junitLauncher = libs.junit.platform.launcher
 subprojects {
     group = "com.github.manu585.fourelements"
 
-    // Each module applies its own plugins so the Kotlin DSL can generate
-    // type-safe accessors for it; we only react to them here.
+    // Each module applies its own plugins so the Kotlin DSL can generate type-safe accessors for it
     pluginManager.withPlugin("java-library") {
         extensions.configure<JavaPluginExtension> {
             toolchain.languageVersion = javaVersion
@@ -32,28 +31,6 @@ subprojects {
             "testRuntimeOnly"(junitLauncher)
         }
     }
-
-//    pluginManager.withPlugin("checkstyle") {
-//        extensions.configure<CheckstyleExtension> {
-//            toolVersion = checkstyleVersion.get()
-//            configDirectory = rootProject.layout.projectDirectory.dir("config/checkstyle")
-//        }
-//
-//        // Resolved against the project here; inside configureEach the receiver
-//        // would be the task, which has no toolchain service.
-//        val checkstyleLauncher = extensions.getByType<JavaToolchainService>()
-//            .launcherFor { languageVersion = javaVersion }
-//
-//        tasks.withType<Checkstyle>().configureEach {
-//            // Checkstyle must run on the same JDK the sources target.
-//            javaLauncher = checkstyleLauncher
-//
-//            reports {
-//                html.required = true
-//                xml.required = false
-//            }
-//        }
-//    }
 
     tasks.withType<JavaCompile>().configureEach {
         options.encoding = "UTF-8"

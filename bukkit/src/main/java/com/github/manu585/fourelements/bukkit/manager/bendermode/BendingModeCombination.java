@@ -1,6 +1,7 @@
 package com.github.manu585.fourelements.bukkit.manager.bendermode;
 
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
+import com.github.manu585.fourelements.core.bender.BendingMode;
 import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +51,7 @@ public class BendingModeCombination implements Combination {
   @Override
   public void onSuccess(UUID uuid) {
     OnlineBenderPlayer benderPlayer = benderManager.getBender(uuid);
-    benderPlayer.setInBendingMode(true);
+    benderPlayer.mode(BendingMode.COMBAT);
 
     playerInputIndexes.remove(uuid);
   }
