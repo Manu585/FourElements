@@ -16,10 +16,9 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>This class owns the bending invariants, so no caller can create an inconsistent state:
  * <ul>
- *   <li>a bender has at most one {@link Element};</li>
- *   <li>the Avatar is a bender (an Avatar always has their home element);</li>
- *   <li>every {@link SubElement} they hold is one they may possess, i.e. it belongs to
- *       their element, or they are the Avatar, a non-bender holds none.</li>
+ *   <li>a bender has at most one {@link Element}</li>
+ *   <li>the Avatar is a bender (an Avatar always has their home element)</li>
+ *   <li>every {@link SubElement} they hold is one they may possess, i.e. it belongs to their element, or they are the Avatar, a non-bender holds none.</li>
  * </ul>
  */
 public class BenderPlayer implements Bender {
@@ -27,10 +26,10 @@ public class BenderPlayer implements Bender {
   private final EnumSet<SubElement> subElements = EnumSet.noneOf(SubElement.class);
 
   private final UUID uuid;
+
   private @Nullable Element element;
+  private @Nullable Element channeled; // The element the avatar is currently channeling
   private boolean avatar;
-  // Only set while avatar is true: the element the Avatar is channeling
-  private @Nullable Element channeled;
 
   /**
    * Create a bender without any element.
@@ -47,8 +46,7 @@ public class BenderPlayer implements Bender {
    * @param uuid UUID of the player
    * @param element the bender's element, or {@code null} for a non-bender
    * @param avatar whether the bender is the Avatar
-   * @param channeled the element the Avatar is channeling; ignored for anyone but the Avatar,
-   *     and defaults to the home element when {@code null}
+   * @param channeled the element the Avatar is channeling, ignored for anyone but the Avatar, and defaults to the home element when {@code null}
    * @param subElements Sub-Elements to start with
    *
    * @throws IllegalArgumentException if the Avatar has no element or a Sub-Element is not valid for the bender
@@ -63,12 +61,12 @@ public class BenderPlayer implements Bender {
     this.avatar = avatar;
     this.channeled = avatar ? (channeled != null ? channeled : element) : null;
 
-    for (SubElement subElement : subElements) {
+    subElements.forEach(subElement -> {
       SubElementResult result = addSubElement(subElement);
       if (result == SubElementResult.NO_ELEMENT || result == SubElementResult.INCOMPATIBLE) {
         throw new IllegalArgumentException("Sub-Element " + subElement + " is not valid for element " + element);
       }
-    }
+    });
   }
 
   @Override
@@ -140,7 +138,7 @@ public class BenderPlayer implements Bender {
    * @param choice Element to channel
    * @return <code>true</code> if switched, <code>false</code> if this bender is not the Avatar
    */
-  public boolean channel(Element choice) {
+  public boolean channelElement(Element choice) {
     if (!avatar) {
       return false;
     }

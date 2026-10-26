@@ -45,10 +45,10 @@ public class OnlineBenderPlayer implements Bender {
    *
    * @param choice Element to channel
    * @return <code>true</code> if switched, <code>false</code> if this bender is not the Avatar
-   * @see BenderPlayer#channel(Element)
+   * @see BenderPlayer#channelElement(Element)
    */
   public boolean chooseActiveElement(Element choice) {
-    return benderPlayer.channel(choice);
+    return benderPlayer.channelElement(choice);
   }
 
   @Override

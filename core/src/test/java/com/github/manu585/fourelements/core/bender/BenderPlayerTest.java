@@ -196,7 +196,7 @@ class BenderPlayerTest {
   void channeledElement_isForgottenWhenAvatarIsRevoked() {
     bender.assignElement(Element.FIRE);
     bender.assignAvatar(true);
-    bender.channel(Element.EARTH);
+    bender.channelElement(Element.EARTH);
 
     bender.assignAvatar(false);
     assertEquals(Optional.of(Element.FIRE), bender.activeElement());
@@ -209,7 +209,7 @@ class BenderPlayerTest {
   void channeledElement_survivesChangingTheHomeElement() {
     bender.assignElement(Element.FIRE);
     bender.assignAvatar(true);
-    bender.channel(Element.EARTH);
+    bender.channelElement(Element.EARTH);
 
     bender.assignElement(Element.WATER);
 
@@ -235,7 +235,7 @@ class BenderPlayerTest {
     BenderPlayer loaded = new BenderPlayer(UUID.randomUUID(), Element.AIR, false, Element.EARTH, List.of());
 
     assertEquals(Optional.of(Element.AIR), loaded.activeElement());
-    assertFalse(loaded.channel(Element.FIRE));
+    assertFalse(loaded.channelElement(Element.FIRE));
   }
 
   // --- copy ---
@@ -244,7 +244,7 @@ class BenderPlayerTest {
   void copyOf_isIndependentOfTheOriginal() {
     bender.assignElement(Element.FIRE);
     bender.assignAvatar(true);
-    bender.channel(Element.EARTH);
+    bender.channelElement(Element.EARTH);
     bender.addSubElement(SubElement.ICE);
 
     BenderPlayer copy = BenderPlayer.copyOf(bender);
