@@ -5,6 +5,7 @@ bstats       = "3.2.1"
 packetevents = "2.13.0"
 hikari       = "7.1.0"
 mysql        = "26.7.0"
+sqlite       = "3.53.4.0"
 lombok       = "1.18.48"
 jspecify     = "1.0.0"
 junit        = "5.14.4"
@@ -17,6 +18,7 @@ bstats       = { module = "org.bstats:bstats-bukkit",                 version.re
 packetevents = { module = "com.github.retrooper:packetevents-spigot", version.ref = "packetevents" }
 hikari       = { module = "com.zaxxer:HikariCP",                      version.ref = "hikari" }
 mysql        = { module = "com.mysql:mysql-connector-j",              version.ref = "mysql" }
+sqlite       = { module = "org.xerial:sqlite-jdbc",                   version.ref = "sqlite" }
 lombok       = { module = "org.projectlombok:lombok",                 version.ref = "lombok" }
 jspecify     = { module = "org.jspecify:jspecify",                    version.ref = "jspecify" }
 

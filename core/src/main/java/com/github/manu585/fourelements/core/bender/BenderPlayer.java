@@ -192,4 +192,15 @@ public class BenderPlayer implements Bender {
     return !avatar && subElement.parent() != element;
   }
 
+  /**
+   * Create an independent copy of a bender. It shares no mutable state with the original,
+   * so it can be handed to another thread while the original keeps being modified.
+   *
+   * @param bender bender to copy
+   * @return a detached copy with the same UUID, element, Avatar flag, channeled element and sub-elements
+   */
+  public static BenderPlayer copyOf(Bender bender) {
+    return new BenderPlayer(bender.uuid(), bender.element().orElse(null), bender.isAvatar(), bender.activeElement().orElse(null), bender.subElements());
+  }
+
 }

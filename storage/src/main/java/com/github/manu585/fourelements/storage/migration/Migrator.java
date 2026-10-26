@@ -1,8 +1,6 @@
-package com.github.manu585.fourelements.bukkit.database;
+package com.github.manu585.fourelements.storage.migration;
 
-import com.github.manu585.fourelements.core.database.Migration;
-import com.github.manu585.fourelements.core.database.SchemaVersion;
-import com.github.manu585.fourelements.core.database.SqlQueries;
+import com.github.manu585.fourelements.storage.sql.Database;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,7 +11,7 @@ import java.util.Locale;
 import java.util.logging.Logger;
 
 /**
- * Brings the database up to {@link SchemaVersion#latestVersion()} on startup.
+ * Brings the database up to the last of the {@link Migrations#all() migrations} on startup.
  *
  * <p>A {@code schema_version} bookkeeping table records which migrations have run.
  * On each boot the migrator reads the highest applied version and executes only the
@@ -28,16 +26,20 @@ import java.util.logging.Logger;
  * single source of truth for what has been applied — is written only after all statements
  * succeed. Every migration must therefore be safe to run again from its first statement.
  */
-public final class SchemaMigrator {
+public final class Migrator {
 
-  // MySQL/MariaDB error code for "Duplicate column name"
-  private static final int ER_DUP_FIELDNAME = 1060;
+  private static final String CREATE_SCHEMA_VERSION_TABLE = "CREATE TABLE IF NOT EXISTS schema_version ("
+      + "version INT PRIMARY KEY, "
+      + "applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+      + ")";
+  private static final String SELECT_SCHEMA_VERSION = "SELECT MAX(version) AS version FROM schema_version";
+  private static final String INSERT_SCHEMA_VERSION = "INSERT INTO schema_version (version) VALUES (?)";
 
-  private final DatabaseManager databaseManager;
+  private final Database database;
   private final Logger logger;
 
-  public SchemaMigrator(final DatabaseManager databaseManager, final Logger logger) {
-    this.databaseManager = databaseManager;
+  public Migrator(Database database, Logger logger) {
+    this.database = database;
     this.logger = logger;
   }
 
@@ -47,18 +49,18 @@ public final class SchemaMigrator {
    * @throws SQLException if the connection cannot be obtained or a migration fails
    */
   public void migrate() throws SQLException {
-    try (Connection connection = databaseManager.getConnection()) {
+    try (Connection connection = database.getConnection()) {
       createSchemaVersionTable(connection);
 
-      final int currentVersion = readCurrentVersion(connection);
-      final List<Migration> migrations = SchemaVersion.migrations();
+      int currentVersion = readCurrentVersion(connection);
+      List<Migration> migrations = Migrations.all();
 
       if (currentVersion >= migrations.size()) {
         logger.info("Database schema up to date (version " + currentVersion + ")");
         return;
       }
 
-      for (final Migration migration : migrations) {
+      for (Migration migration : migrations) {
         if (migration.version() > currentVersion) {
           applyMigration(connection, migration);
         }
@@ -66,32 +68,32 @@ public final class SchemaMigrator {
     }
   }
 
-  private void createSchemaVersionTable(final Connection connection) throws SQLException {
+  private void createSchemaVersionTable(Connection connection) throws SQLException {
     try (Statement statement = connection.createStatement()) {
-      statement.execute(SqlQueries.CREATE_SCHEMA_VERSION_TABLE.getQuery());
+      statement.execute(CREATE_SCHEMA_VERSION_TABLE);
     }
   }
 
-  private int readCurrentVersion(final Connection connection) throws SQLException {
+  private int readCurrentVersion(Connection connection) throws SQLException {
     try (Statement statement = connection.createStatement();
-         ResultSet resultSet = statement.executeQuery(SqlQueries.SELECT_SCHEMA_VERSION.getQuery())) {
+         ResultSet resultSet = statement.executeQuery(SELECT_SCHEMA_VERSION)) {
       return resultSet.next() ? resultSet.getInt("version") : 0;
     }
   }
 
-  private void applyMigration(final Connection connection, final Migration migration) throws SQLException {
-    final boolean previousAutoCommit = connection.getAutoCommit();
+  private void applyMigration(Connection connection, Migration migration) throws SQLException {
+    boolean previousAutoCommit = connection.getAutoCommit();
     connection.setAutoCommit(false);
 
     try (Statement statement = connection.createStatement()) {
-      for (final String sql : migration.statements()) {
+      for (String sql : migration.statements().apply(database.dialect())) {
         execute(statement, sql);
       }
       recordVersion(connection, migration.version());
 
       connection.commit();
-      logger.info("Applied migration to schema version " + migration.version());
-    } catch (final SQLException e) {
+      logger.info("Applied migration to schema version " + migration.version() + " (" + migration.description() + ")");
+    } catch (SQLException e) {
       connection.rollback();
       throw new SQLException("Migration to version " + migration.version() + " failed, rolled back", e);
     } finally {
@@ -99,11 +101,11 @@ public final class SchemaMigrator {
     }
   }
 
-  private void execute(final Statement statement, final String sql) throws SQLException {
+  private void execute(Statement statement, String sql) throws SQLException {
     try {
       statement.execute(sql);
-    } catch (final SQLException e) {
-      if (e.getErrorCode() == ER_DUP_FIELDNAME && isAddColumn(sql)) {
+    } catch (SQLException e) {
+      if (database.dialect().isDuplicateColumn(e) && isAddColumn(sql)) {
         logger.warning("Column already exists, skipping (left over from an interrupted migration): " + sql);
         return;
       }
@@ -111,13 +113,13 @@ public final class SchemaMigrator {
     }
   }
 
-  private static boolean isAddColumn(final String sql) {
-    final String normalized = sql.trim().toUpperCase(Locale.ROOT);
+  private static boolean isAddColumn(String sql) {
+    String normalized = sql.trim().toUpperCase(Locale.ROOT);
     return normalized.startsWith("ALTER TABLE") && normalized.contains(" ADD COLUMN ");
   }
 
-  private void recordVersion(final Connection connection, final int version) throws SQLException {
-    try (PreparedStatement insert = connection.prepareStatement(SqlQueries.INSERT_SCHEMA_VERSION.getQuery())) {
+  private void recordVersion(Connection connection, int version) throws SQLException {
+    try (PreparedStatement insert = connection.prepareStatement(INSERT_SCHEMA_VERSION)) {
       insert.setInt(1, version);
       insert.executeUpdate();
     }

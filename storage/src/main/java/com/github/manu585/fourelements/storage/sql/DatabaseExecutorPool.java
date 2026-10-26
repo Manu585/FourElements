@@ -1,25 +1,30 @@
-package com.github.manu585.fourelements.bukkit.executor;
+package com.github.manu585.fourelements.storage.sql;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import lombok.Getter;
 
-@Getter
-public final class DatabaseExecutorPool {
+/**
+ * The threads database work runs on, so it never blocks the server thread.
+ */
+final class DatabaseExecutorPool {
 
   private final ExecutorService executor;
 
-  public DatabaseExecutorPool(final int poolSize) {
+  DatabaseExecutorPool(int poolSize) {
     if (poolSize <= 0) {
       throw new IllegalArgumentException("Pool size must be greater than 0!");
     }
     this.executor = Executors.newFixedThreadPool(poolSize, daemonThreadFactory());
   }
 
-  public void shutdown() {
+  ExecutorService getExecutor() {
+    return executor;
+  }
+
+  void shutdown() {
     executor.shutdown();
     try {
       if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {

@@ -18,7 +18,7 @@ public interface BenderRepository {
   /**
    * Persist a bender and its full element set (upsert).
    *
-   * @param bender bender to save
+   * @param bender bender to save; it is copied before this returns, so later changes to it do not affect the write
    * @return a future completing when the write is done
    */
   CompletableFuture<Void> saveBender(Bender bender);

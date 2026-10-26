@@ -34,7 +34,7 @@ public class FourElementsPluginLoader implements PluginLoader {
   private static List<String> readLibraries() {
     try (InputStream in = FourElementsPluginLoader.class.getClassLoader().getResourceAsStream(LIBRARIES_RESOURCE)) {
       if (in == null) {
-        throw new IllegalStateException(LIBRARIES_RESOURCE + " fehlt in der Plugin-JAR");
+        throw new IllegalStateException(LIBRARIES_RESOURCE + " missing in the Plugin-JAR");
       }
       return new String(in.readAllBytes(), StandardCharsets.UTF_8)
           .lines()
@@ -42,7 +42,7 @@ public class FourElementsPluginLoader implements PluginLoader {
           .filter(line -> !line.isEmpty())
           .toList();
     } catch (IOException e) {
-      throw new UncheckedIOException("Konnte " + LIBRARIES_RESOURCE + " nicht lesen", e);
+      throw new UncheckedIOException("Unable to read " + LIBRARIES_RESOURCE, e);
     }
   }
 

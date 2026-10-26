@@ -238,6 +238,25 @@ class BenderPlayerTest {
     assertFalse(loaded.channel(Element.FIRE));
   }
 
+  // --- copy ---
+
+  @Test
+  void copyOf_isIndependentOfTheOriginal() {
+    bender.assignElement(Element.FIRE);
+    bender.assignAvatar(true);
+    bender.channel(Element.EARTH);
+    bender.addSubElement(SubElement.ICE);
+
+    BenderPlayer copy = BenderPlayer.copyOf(bender);
+    bender.assignAvatar(false);
+    bender.assignElement(Element.WATER);
+
+    assertEquals(Optional.of(Element.FIRE), copy.element());
+    assertTrue(copy.isAvatar());
+    assertEquals(Optional.of(Element.EARTH), copy.activeElement());
+    assertEquals(Set.of(SubElement.ICE), copy.subElements());
+  }
+
   // --- mode ---
 
   @Test

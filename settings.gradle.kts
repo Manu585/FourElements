@@ -9,4 +9,4 @@ dependencyResolutionManagement {
     }
 }
 
-include("api", "core", "bukkit")
+include("api", "core", "storage", "bukkit")

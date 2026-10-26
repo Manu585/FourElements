@@ -7,9 +7,7 @@ import com.github.manu585.fourelements.bukkit.commands.ChooseCommand;
 import com.github.manu585.fourelements.bukkit.commands.InfoCommand;
 import com.github.manu585.fourelements.bukkit.commands.SetCommand;
 import com.github.manu585.fourelements.bukkit.commands.SubElementCommand;
-import com.github.manu585.fourelements.bukkit.database.DatabaseManager;
-import com.github.manu585.fourelements.bukkit.database.DatabaseSettings;
-import com.github.manu585.fourelements.bukkit.database.SchemaMigrator;
+import com.github.manu585.fourelements.bukkit.config.DatabaseSettingsReader;
 import com.github.manu585.fourelements.bukkit.listeners.ConnectionListeners;
 import com.github.manu585.fourelements.bukkit.listeners.bending.EnterBendingModeListener;
 import com.github.manu585.fourelements.bukkit.systems.CommandSystem;
@@ -17,7 +15,11 @@ import com.github.manu585.fourelements.bukkit.systems.ListenerSystem;
 import com.github.manu585.fourelements.core.exceptions.StartupException;
 import com.github.manu585.fourelements.core.system.PluginSystem;
 import java.sql.SQLException;
+import com.github.manu585.fourelements.storage.migration.Migrator;
+import com.github.manu585.fourelements.storage.sql.Database;
+import com.github.manu585.fourelements.storage.sql.DatabaseSettings;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.plugin.Plugin;
@@ -44,7 +46,7 @@ import org.jspecify.annotations.NonNull;
 public final class FourElementsBootstrap {
 
   private final Plugin plugin;
-  private final DatabaseManager database;
+  private final Database database;
   private final Services services;
   private final List<PluginSystem> systems;
 
@@ -54,7 +56,7 @@ public final class FourElementsBootstrap {
    * @throws StartupException if a phase failed for an expected reason, everything opened up to that point has already been released again
    */
   public static FourElementsBootstrap start(Plugin plugin) throws StartupException {
-    DatabaseManager database = connectDatabase(plugin);
+    Database database = connectDatabase(plugin);
     try {
       migrateSchema(plugin, database);
       Services services = wireServices(database);
@@ -85,10 +87,10 @@ public final class FourElementsBootstrap {
 
   // ---- Startup phases ----
 
-  private static @NonNull DatabaseManager connectDatabase(@NonNull Plugin plugin) throws StartupException {
-    DatabaseSettings settings = DatabaseSettings.from(plugin.getConfig());
+  private static @NonNull Database connectDatabase(@NonNull Plugin plugin) throws StartupException {
+    DatabaseSettings settings = DatabaseSettingsReader.read(plugin.getConfig(), plugin.getDataFolder().toPath());
     try {
-      return DatabaseManager.connect(settings);
+      return Database.connect(settings);
     } catch (SQLException e) {
       throw new StartupException("No database connection to " + settings.address() + " (" + e.getMessage() + ")", e);
     } catch (IllegalArgumentException | IllegalStateException e) {
@@ -96,16 +98,16 @@ public final class FourElementsBootstrap {
     }
   }
 
-  private static void migrateSchema(@NonNull Plugin plugin, DatabaseManager database) throws StartupException {
+  private static void migrateSchema(@NonNull Plugin plugin, Database database) throws StartupException {
     try {
-      new SchemaMigrator(database, plugin.getLogger()).migrate();
+      new Migrator(database, plugin.getLogger()).migrate();
     } catch (SQLException e) {
       String reason = e.getCause() != null ? e.getMessage() + ": " + e.getCause().getMessage() : e.getMessage();
       throw new StartupException("Database schema migration failed (" + reason + ")", e);
     }
   }
 
-  private static @NonNull Services wireServices(DatabaseManager database) {
+  private static @NonNull Services wireServices(Database database) {
     return Services.wire(database);
   }
 
@@ -125,7 +127,14 @@ public final class FourElementsBootstrap {
   // ---- Shutdown phases ----
 
   private void saveOnlineBenders() {
-    services.benderManager().online().forEach(online -> services.benderManager().save(online.benderPlayer()).join());
+    // All at once instead of one after the other, a failed save is logged and must not stop the shutdown
+    CompletableFuture<?>[] saves = services.benderManager().online().stream()
+        .map(online -> services.benderManager().save(online.benderPlayer()).exceptionally(error -> {
+          plugin.getLogger().severe("Could not save " + online.uuid() + " on shutdown: " + error.getMessage());
+          return null;
+        }))
+        .toArray(CompletableFuture[]::new);
+    CompletableFuture.allOf(saves).join();
   }
 
   private void disableSystems() {

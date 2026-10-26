@@ -5,10 +5,20 @@
 bstats: true
 
 database:
+  # Where the data is stored: sqlite, or mysql (the same for MariaDB).
+  # sqlite needs no setup, it keeps everything in a single file inside the plugin folder.
+  type: "sqlite"
+
+  # sqlite only: the file name, relative to the plugin folder
+  file: "fourelements.db"
+
+  # mysql only
   host: "localhost"
   port: 3306
   database: "fourelements"
   username: "root"
   password: ""
+
+  # Connections to open (ignored for sqlite, which always uses one) and the time to wait for one, in ms
   pool-size: 10
   connection-timeout: 5000

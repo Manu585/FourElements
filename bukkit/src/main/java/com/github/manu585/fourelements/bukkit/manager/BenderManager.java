@@ -110,7 +110,7 @@ public final class BenderManager {
    * @return a future completing when the write is done
    */
   public CompletableFuture<Void> save(BenderPlayer benderPlayer) {
-    BenderPlayer snapshot = snapshot(benderPlayer);
+    BenderPlayer snapshot = BenderPlayer.copyOf(benderPlayer);
     return ioQueue.submit(snapshot.uuid(), () -> repository.saveBender(snapshot));
   }
 
@@ -149,19 +149,6 @@ public final class BenderManager {
   }
 
   /**
-   * Creates an independent copy of the given bender for persistence.
-   *
-   * <p>The copy shares no mutable state with the original, so it can be handed to another
-   * thread while the original keeps being modified.
-   *
-   * @param benderPlayer bender to copy
-   * @return a detached copy with the same UUID, element, Avatar flag and sub-elements
-   */
-  private static @NonNull BenderPlayer snapshot(BenderPlayer benderPlayer) {
-    return new BenderPlayer(benderPlayer.uuid(), benderPlayer.element().orElse(null), benderPlayer.isAvatar(), benderPlayer.activeElement().orElse(null), benderPlayer.subElements());
-  }
-
-  /**
    * Runs inside a queued task (the stored bender is private to it), so it writes straight
    * to the repository; going through {@link #save} here would wait on its own task.
    */
@@ -180,7 +167,7 @@ public final class BenderManager {
   }
 
   private CompletableFuture<Void> saveNow(BenderPlayer benderPlayer) {
-    return repository.saveBender(snapshot(benderPlayer));
+    return repository.saveBender(BenderPlayer.copyOf(benderPlayer));
   }
 
   private <R> CompletableFuture<R> applyAndPersist(BenderPlayer target, Function<BenderPlayer, R> edit, Function<BenderPlayer, CompletableFuture<Void>> persist) {

@@ -19,12 +19,14 @@ configurations.compileOnly {
 
 dependencies {
     implementation(project(":core")) // pulls in :api transitively
+    implementation(project(":storage"))
     implementation(libs.bstats) // shaded and relocated, see shadowJar
     compileOnly(libs.paper.api)
     compileOnly(libs.packetevents)
 
     paperLibrary(libs.hikari)
     paperLibrary(libs.mysql)
+    paperLibrary(libs.sqlite)
 }
 
 val generatePaperLibraries = tasks.register("generatePaperLibraries") {
