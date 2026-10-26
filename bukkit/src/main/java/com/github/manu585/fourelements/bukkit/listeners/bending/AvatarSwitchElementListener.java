@@ -2,11 +2,12 @@ package com.github.manu585.fourelements.bukkit.listeners.bending;
 
 import com.github.manu585.fourelements.api.bending.Element;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
-import com.github.manu585.fourelements.bukkit.text.BendingText;
 import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,25 +36,55 @@ public class AvatarSwitchElementListener implements Listener {
 
     switch (element) {
       case AIR: {
-        player.sendMessage(BendingText.name(Element.AIR));
+        Particle.CLOUD.builder()
+            .location(player.getEyeLocation())
+            .offset(1, 1, 1)
+            .speed(0.3)
+            .count(20)
+            .receivers(player)
+            .spawn();
+
         bender.chooseActiveElement(Element.AIR);
         break;
       }
 
       case WATER: {
-        player.sendMessage(BendingText.name(Element.WATER));
+        Particle.SPLASH.builder()
+            .location(player.getEyeLocation())
+            .offset(1, 1, 1)
+            .speed(0.3)
+            .count(20)
+            .receivers(player)
+            .spawn();
+
         bender.chooseActiveElement(Element.WATER);
         break;
       }
 
       case EARTH: {
-        player.sendMessage(BendingText.name(Element.EARTH));
+        Particle.DUST.builder()
+            .color(Color.GREEN)
+            .location(player.getEyeLocation())
+            .offset(1, 1, 1)
+            .speed(0.3)
+            .count(20)
+
+            .receivers(player)
+            .spawn();
+
         bender.chooseActiveElement(Element.EARTH);
         break;
       }
 
       case FIRE: {
-        player.sendMessage(BendingText.name(Element.FIRE));
+        Particle.FLAME.builder()
+            .location(player.getEyeLocation())
+            .offset(1, 1, 1)
+            .speed(0.3)
+            .count(20)
+            .receivers(player)
+            .spawn();
+
         bender.chooseActiveElement(Element.FIRE);
         break;
       }
