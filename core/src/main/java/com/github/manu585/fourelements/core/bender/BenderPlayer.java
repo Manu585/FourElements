@@ -3,6 +3,8 @@ package com.github.manu585.fourelements.core.bender;
 import com.github.manu585.fourelements.api.bender.Bender;
 import com.github.manu585.fourelements.api.bending.Element;
 import com.github.manu585.fourelements.api.bending.SubElement;
+import com.github.manu585.fourelements.core.bender.results.AvatarResult;
+import com.github.manu585.fourelements.core.bender.results.SubElementResult;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;

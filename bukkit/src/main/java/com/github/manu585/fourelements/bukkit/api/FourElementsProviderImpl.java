@@ -1,8 +1,9 @@
 package com.github.manu585.fourelements.bukkit.api;
 
 import com.github.manu585.fourelements.api.FourElementsProvider;
-import com.github.manu585.fourelements.api.bender.Bender;
+import com.github.manu585.fourelements.api.bender.OnlineBender;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
+import java.util.Optional;
 import java.util.UUID;
 import org.jspecify.annotations.NonNull;
 
@@ -15,8 +16,8 @@ public final class FourElementsProviderImpl implements FourElementsProvider {
   }
 
   @Override
-  public @NonNull Bender getBender(UUID uuid) {
-    return benderManager.getBender(uuid);
+  public @NonNull Optional<OnlineBender> getOnlineBender(UUID uuid) {
+    return benderManager.findOnline(uuid).map(bender -> bender);
   }
 
 }

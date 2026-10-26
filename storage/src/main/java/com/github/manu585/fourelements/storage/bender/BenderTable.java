@@ -4,7 +4,7 @@ import com.github.manu585.fourelements.api.bender.Bender;
 import com.github.manu585.fourelements.api.bending.Element;
 import com.github.manu585.fourelements.api.bending.SubElement;
 import com.github.manu585.fourelements.core.bender.BenderPlayer;
-import com.github.manu585.fourelements.core.bender.SubElementResult;
+import com.github.manu585.fourelements.core.bender.results.SubElementResult;
 import com.github.manu585.fourelements.storage.sql.SqlDialect;
 import com.github.manu585.fourelements.storage.sql.UuidBytes;
 import java.sql.Connection;

@@ -1,8 +1,11 @@
 package com.github.manu585.fourelements.core.bender;
 
 import com.github.manu585.fourelements.api.bender.Bender;
+import com.github.manu585.fourelements.api.bender.OnlineBender;
 import com.github.manu585.fourelements.api.bending.Element;
 import com.github.manu585.fourelements.api.bending.SubElement;
+import com.github.manu585.fourelements.core.bender.chi.ChiPool;
+import com.github.manu585.fourelements.core.bender.mode.BendingMode;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -12,17 +15,19 @@ import java.util.UUID;
  * state (bending mode) that is never persisted.
  *
  * <p>Delegates the persistent {@link Bender} contract to the wrapped {@link BenderPlayer},
- * so an online bender can be used anywhere a {@link Bender} is expected.
+ * so an online bender can be used anywhere a {@link Bender} is expected, and adds the
+ * session-only {@link OnlineBender} state.
  */
-public class OnlineBenderPlayer implements Bender {
+public class OnlineBenderPlayer implements OnlineBender {
 
   private final BenderPlayer benderPlayer;
+  private final ChiPool chi;
 
   private BendingMode mode = BendingMode.PASSIVE;
-  private double chi;
 
   public OnlineBenderPlayer(BenderPlayer benderPlayer) {
     this.benderPlayer = benderPlayer;
+    this.chi = new ChiPool(ChiPool.DEFAULT_MAX);
   }
 
   /**
@@ -38,6 +43,15 @@ public class OnlineBenderPlayer implements Bender {
 
   public void mode(BendingMode mode) {
     this.mode = mode;
+  }
+
+  /**
+   * The API only sees this as a read-only {@link com.github.manu585.fourelements.api.bender.Chi},
+   * the plugin itself gets the pool to spend and restore chi.
+   */
+  @Override
+  public ChiPool chi() {
+    return chi;
   }
 
   /**

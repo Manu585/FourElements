@@ -7,6 +7,7 @@ import com.github.manu585.fourelements.core.registry.OnlineBenderRegistry;
 import com.github.manu585.fourelements.core.repository.BenderRepository;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,6 +78,14 @@ public final class BenderManager {
 
   public OnlineBenderPlayer getBender(UUID uuid) {
     return registry.getOrThrow(uuid);
+  }
+
+  /**
+   * @param uuid UUID of the player
+   * @return the online bender, or empty if that player is not online
+   */
+  public Optional<OnlineBenderPlayer> findOnline(UUID uuid) {
+    return Optional.ofNullable(registry.get(uuid));
   }
 
   public boolean isOnline(UUID uuid) {

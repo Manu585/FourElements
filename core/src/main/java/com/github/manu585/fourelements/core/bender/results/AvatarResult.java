@@ -1,4 +1,6 @@
-package com.github.manu585.fourelements.core.bender;
+package com.github.manu585.fourelements.core.bender.results;
+
+import com.github.manu585.fourelements.core.bender.BenderPlayer;
 
 /**
  * Outcome of {@link BenderPlayer#assignAvatar}.

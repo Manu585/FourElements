@@ -33,4 +33,13 @@ public enum Element {
     return chatColorHex;
   }
 
+  public static Element nextElementInCycle(Element previous) {
+    return switch (previous) {
+      case AIR -> WATER;
+      case WATER -> EARTH;
+      case EARTH -> FIRE;
+      case FIRE -> AIR;
+    };
+  }
+
 }

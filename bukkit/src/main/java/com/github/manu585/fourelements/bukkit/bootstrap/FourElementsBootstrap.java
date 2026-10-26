@@ -9,6 +9,7 @@ import com.github.manu585.fourelements.bukkit.commands.SetCommand;
 import com.github.manu585.fourelements.bukkit.commands.SubElementCommand;
 import com.github.manu585.fourelements.bukkit.config.DatabaseSettingsReader;
 import com.github.manu585.fourelements.bukkit.listeners.ConnectionListeners;
+import com.github.manu585.fourelements.bukkit.listeners.bending.AvatarSwitchElementListener;
 import com.github.manu585.fourelements.bukkit.listeners.bending.EnterBendingModeListener;
 import com.github.manu585.fourelements.bukkit.systems.CommandSystem;
 import com.github.manu585.fourelements.bukkit.systems.ListenerSystem;
@@ -158,7 +159,8 @@ public final class FourElementsBootstrap {
   private static @NonNull PluginSystem listenerSystem(Plugin plugin, @NonNull Services services) {
     return new ListenerSystem(plugin, List.of(
         new ConnectionListeners(services.benderManager()),
-        new EnterBendingModeListener(services.benderManager(), services.bendingModeCombination())
+        new EnterBendingModeListener(services.benderManager(), services.bendingModeCombination()),
+        new AvatarSwitchElementListener(services.benderManager())
     ));
   }
 

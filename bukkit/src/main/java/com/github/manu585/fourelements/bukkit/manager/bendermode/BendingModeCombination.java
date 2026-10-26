@@ -1,7 +1,7 @@
 package com.github.manu585.fourelements.bukkit.manager.bendermode;
 
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
-import com.github.manu585.fourelements.core.bender.BendingMode;
+import com.github.manu585.fourelements.core.bender.mode.BendingMode;
 import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
 import java.util.HashMap;
 import java.util.List;

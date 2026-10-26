@@ -7,6 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.manu585.fourelements.api.bending.Element;
 import com.github.manu585.fourelements.api.bending.SubElement;
+import com.github.manu585.fourelements.core.bender.chi.ChiPool;
+import com.github.manu585.fourelements.core.bender.mode.BendingMode;
+import com.github.manu585.fourelements.core.bender.results.AvatarResult;
+import com.github.manu585.fourelements.core.bender.results.SubElementResult;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -255,6 +259,48 @@ class BenderPlayerTest {
     assertTrue(copy.isAvatar());
     assertEquals(Optional.of(Element.EARTH), copy.activeElement());
     assertEquals(Set.of(SubElement.ICE), copy.subElements());
+  }
+
+  // --- chi ---
+
+  @Test
+  void chi_startsFull_andIsSeenThroughTheApiView() {
+    OnlineBenderPlayer online = new OnlineBenderPlayer(bender);
+
+    assertEquals(ChiPool.DEFAULT_MAX, online.chi().current());
+    assertEquals(1.0, online.chi().fraction());
+  }
+
+  @Test
+  void chiPool_spendTakesOnlyWhatIsThere() {
+    ChiPool chi = new ChiPool(100);
+
+    assertTrue(chi.spend(30));
+    assertEquals(70, chi.current());
+    assertFalse(chi.spend(80));
+    assertEquals(70, chi.current()); // a refused spend takes nothing
+    assertTrue(chi.spend(70));
+    assertEquals(0.0, chi.fraction());
+  }
+
+  @Test
+  void chiPool_restoreStopsAtTheMaximum_andLoweringTheMaximumCutsOff() {
+    ChiPool chi = new ChiPool(100);
+    chi.spend(40);
+
+    chi.restore(1000);
+    assertEquals(100, chi.current());
+
+    chi.max(60);
+    assertEquals(60, chi.current());
+    assertEquals(60, chi.max());
+  }
+
+  @Test
+  void chiPool_rejectsNonsense() {
+    assertThrows(IllegalArgumentException.class, () -> new ChiPool(0));
+    assertThrows(IllegalArgumentException.class, () -> new ChiPool(100).spend(-1));
+    assertThrows(IllegalArgumentException.class, () -> new ChiPool(100).restore(Double.NaN));
   }
 
   // --- mode ---

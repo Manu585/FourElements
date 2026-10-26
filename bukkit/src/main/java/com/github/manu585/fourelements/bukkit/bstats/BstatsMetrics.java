@@ -19,10 +19,6 @@ public final class BstatsMetrics {
 
   public BstatsMetrics(Plugin plugin, BenderManager benderManager) {
     Metrics metrics = new Metrics(plugin, PLUGIN_ID);
-
-    // Which element is favoured: how many online benders each of the four elements has.
-    // The Avatar counts towards their home element. bStats calls this from its own thread,
-    // the online registry is concurrent, so reading it here is safe.
     metrics.addCustomChart(new AdvancedPie("elements", () -> elementCounts(benderManager)));
   }
 

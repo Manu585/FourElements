@@ -1,4 +1,4 @@
-package com.github.manu585.fourelements.core.bender;
+package com.github.manu585.fourelements.core.bender.mode;
 
 /**
  * What a bender is currently doing with their bending. Session-only, never persisted.
