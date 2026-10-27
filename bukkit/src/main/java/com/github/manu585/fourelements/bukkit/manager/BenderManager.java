@@ -12,8 +12,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import org.jetbrains.annotations.Contract;
-import org.jspecify.annotations.NonNull;
 
 /**
  * Owns the lifecycle of runtime benders and every database access made on their behalf.
@@ -112,7 +110,7 @@ public final class BenderManager {
   }
 
   /**
-   * Persist a bender. The element state is snapshotted immediately on the calling thread,
+   * Persist a bender. The element state is snapshot immediately on the calling thread,
    * so later mutations cannot leak into (or race with) the asynchronous write.
    *
    * @param benderPlayer bender to save
@@ -135,8 +133,8 @@ public final class BenderManager {
    * @param uuid bender to edit
    * @param edit mutation to apply to the {@link BenderPlayer}; its return value is passed through to the caller (e.g. whether an element was newly added)
    * @param <R>  result type of the edit
-   * @return a future completing with the edit's result once persisted, or completing
-   *     exceptionally if the edit throws or the load or save fails
+   *
+   * @return a future completing with the edit's result once persisted, or completing exceptionally if the edit throws or the load or save fails
    */
   public <R> CompletableFuture<R> editBender(UUID uuid, Function<BenderPlayer, R> edit) {
     BenderPlayer live = liveBender(uuid);
@@ -186,7 +184,7 @@ public final class BenderManager {
     } catch (RuntimeException e) {
       return CompletableFuture.failedFuture(e);
     }
-    return persist.apply(target).thenApply(ignored -> result);
+    return persist.apply(target).thenApply(_ -> result);
   }
 
 }

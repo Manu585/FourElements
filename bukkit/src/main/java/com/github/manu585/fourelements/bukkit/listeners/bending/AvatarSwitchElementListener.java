@@ -32,6 +32,8 @@ public class AvatarSwitchElementListener implements Listener {
     benderPlayer.chooseActiveElement(nextElement);
     playElementPickAnimation(nextElement, player);
 
+    benderPlayer.chi().spend(5);
+
     // Persist
     benderManager.save(benderPlayer.benderPlayer());
   }

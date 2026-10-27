@@ -22,11 +22,14 @@ public final class Migrations {
    */
   public static List<Migration> all() {
     return List.of(
-        // Order matters inside a migration: bender_sub_elements references benders
+        // Order matters inside a migration: bender_sub_elements references benders.
+        // channeled_element is only meaningful while the avatar flag is set; the loader ignores it otherwise.
         new Migration(1, "Create the bender tables", dialect -> List.of(
             "CREATE TABLE IF NOT EXISTS benders ("
                 + "uuid " + dialect.uuidType() + " PRIMARY KEY, "
-                + "element VARCHAR(32) NULL"
+                + "element VARCHAR(32) NULL, "
+                + "avatar BOOLEAN NOT NULL DEFAULT FALSE, "
+                + "channeled_element VARCHAR(32) NULL"
                 + ")",
             "CREATE TABLE IF NOT EXISTS bender_sub_elements ("
                 + "bender_uuid " + dialect.uuidType() + " NOT NULL, "
@@ -34,18 +37,6 @@ public final class Migrations {
                 + "PRIMARY KEY (bender_uuid, sub_element), "
                 + "FOREIGN KEY (bender_uuid) REFERENCES benders(uuid) ON DELETE CASCADE"
                 + ")"
-        )),
-
-        // The Avatar is a flag on top of the home element instead of an element value, and
-        // chi is no longer a bender type. chi benders become non-benders.
-        new Migration(2, "Make the Avatar a flag, drop chi", _ -> List.of(
-            "ALTER TABLE benders ADD COLUMN avatar BOOLEAN NOT NULL DEFAULT FALSE",
-            "UPDATE benders SET element = NULL WHERE element = 'CHI'"
-        )),
-
-        // Only meaningful while the avatar flag is set; the loader ignores it otherwise.
-        new Migration(3, "Remember the element the Avatar channels", _ -> List.of(
-            "ALTER TABLE benders ADD COLUMN channeled_element VARCHAR(32) NULL"
         ))
     );
   }

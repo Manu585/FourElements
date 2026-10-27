@@ -156,7 +156,7 @@ public final class FourElementsBootstrap {
   @Contract("_, _ -> new")
   private static @NonNull PluginSystem listenerSystem(Plugin plugin, @NonNull Services services) {
     return new ListenerSystem(plugin, List.of(
-        new ConnectionListeners(services.benderManager()),
+        new ConnectionListeners(plugin, services.benderManager()),
         new EnterBendingModeListener(services.benderManager(), services.bendingModeCombination()),
         new AvatarSwitchElementListener(services.benderManager())
     ));

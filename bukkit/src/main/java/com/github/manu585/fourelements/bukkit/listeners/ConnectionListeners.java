@@ -1,7 +1,11 @@
 package com.github.manu585.fourelements.bukkit.listeners;
 
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
+import com.github.manu585.fourelements.bukkit.manager.ChiManager;
+import com.github.manu585.fourelements.bukkit.tasks.ChiTask;
 import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -10,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.Plugin;
 
 /**
  * Drives the bender lifecycle across a connection:
@@ -25,10 +30,15 @@ import org.bukkit.event.player.PlayerQuitEvent;
  */
 public class ConnectionListeners implements Listener {
 
+  // TODO: Make dedicated TaskManager and Registry
+  private final Map<UUID, ChiTask> activeTasks = new HashMap<>();
+
+  private final Plugin plugin;
   private final BenderManager benderManager;
 
-  public ConnectionListeners(BenderManager benderManager) {
+  public ConnectionListeners(Plugin plugin, BenderManager benderManager) {
     this.benderManager = benderManager;
+    this.plugin = plugin;
   }
 
   @EventHandler
@@ -47,8 +57,11 @@ public class ConnectionListeners implements Listener {
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
     UUID uuid = event.getPlayer().getUniqueId();
-
     benderManager.promote(uuid);
+
+    ChiTask chiTask = new ChiTask(plugin, new ChiManager(benderManager.getBender(uuid), event.getPlayer()));
+    chiTask.start();
+    activeTasks.put(uuid, chiTask);
   }
 
   @EventHandler
@@ -58,6 +71,12 @@ public class ConnectionListeners implements Listener {
       return;
     }
 
+    if (activeTasks.containsKey(event.getPlayer().getUniqueId())) {
+      ChiTask task = activeTasks.get(event.getPlayer().getUniqueId());
+      task.stop();
+    }
+
+    activeTasks.remove(event.getPlayer().getUniqueId());
     benderManager.save(online.benderPlayer());
   }
 

@@ -5,7 +5,7 @@ import java.util.List;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 
-public class ListenerSystem implements PluginSystem {
+public final class ListenerSystem implements PluginSystem {
 
   private final Plugin plugin;
   private final List<Listener> listeners;

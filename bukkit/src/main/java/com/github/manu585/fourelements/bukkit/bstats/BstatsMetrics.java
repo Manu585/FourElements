@@ -24,7 +24,9 @@ public final class BstatsMetrics {
 
   private static Map<String, Integer> elementCounts(BenderManager benderManager) {
     Map<Element, Integer> counts = new EnumMap<>(Element.class);
-    benderManager.online().forEach(bender -> bender.element().ifPresent(element -> counts.merge(element, 1, Integer::sum)));
+    benderManager.online()
+        .forEach(bender -> bender.element()
+            .ifPresent(element -> counts.merge(element, 1, Integer::sum)));
 
     Map<String, Integer> pie = new HashMap<>();
     counts.forEach((element, count) -> pie.put(element.displayName(), count));
