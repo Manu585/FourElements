@@ -12,6 +12,7 @@ import com.github.manu585.fourelements.bukkit.listeners.bending.AvatarSwitchElem
 import com.github.manu585.fourelements.bukkit.listeners.bending.EnterBendingModeListener;
 import com.github.manu585.fourelements.bukkit.systems.CommandSystem;
 import com.github.manu585.fourelements.bukkit.systems.ListenerSystem;
+import com.github.manu585.fourelements.bukkit.systems.TickSystem;
 import com.github.manu585.fourelements.core.exceptions.StartupException;
 import com.github.manu585.fourelements.core.system.PluginSystem;
 import java.sql.SQLException;
@@ -112,9 +113,12 @@ public final class FourElementsBootstrap {
   }
 
   private static @NonNull List<PluginSystem> enableSystems(Plugin plugin, Services services) {
+    // The ticker comes first, the listeners register their tickables on it
+    TickSystem tickSystem = new TickSystem(plugin);
     List<PluginSystem> systems = List.of(
+        tickSystem,
         commandSystem(plugin, services),
-        listenerSystem(plugin, services)
+        listenerSystem(plugin, services, tickSystem)
     );
     systems.forEach(PluginSystem::enable);
     return systems;
@@ -153,10 +157,10 @@ public final class FourElementsBootstrap {
     ));
   }
 
-  @Contract("_, _ -> new")
-  private static @NonNull PluginSystem listenerSystem(Plugin plugin, @NonNull Services services) {
+  @Contract("_, _, _ -> new")
+  private static @NonNull PluginSystem listenerSystem(Plugin plugin, @NonNull Services services, TickSystem tickSystem) {
     return new ListenerSystem(plugin, List.of(
-        new ConnectionListeners(plugin, services.benderManager()),
+        new ConnectionListeners(services.benderManager(), tickSystem),
         new EnterBendingModeListener(services.benderManager(), services.bendingModeCombination()),
         new AvatarSwitchElementListener(services.benderManager())
     ));

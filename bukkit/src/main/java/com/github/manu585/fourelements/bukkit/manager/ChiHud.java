@@ -1,15 +1,17 @@
 package com.github.manu585.fourelements.bukkit.manager;
 
 import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
+import com.github.manu585.fourelements.core.tick.Tickable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import org.jspecify.annotations.NonNull;
 
 @AllArgsConstructor
 @Getter
-public final class ChiManager {
+public final class ChiHud implements Tickable {
 
   private static final int MAX_CHARS = 25;
   private static final char CHI_CHAR = '┃';
@@ -17,11 +19,16 @@ public final class ChiManager {
   private final OnlineBenderPlayer onlineBenderPlayer;
   private final Audience audience;
 
+  @Override
+  public void tick() {
+    sendChiActionBar();
+  }
+
   public void sendChiActionBar() {
     audience.sendActionBar(this::formattedChiComponent);
   }
 
-  public Component formattedChiComponent() {
+  private @NonNull Component formattedChiComponent() {
     int lightBarsAmount = (int) Math.ceil(onlineBenderPlayer.chi().fraction() * MAX_CHARS);
     int darkBarsAmount = MAX_CHARS - lightBarsAmount;
 
