@@ -3,9 +3,8 @@ package com.github.manu585.fourelements.bukkit.bootstrap;
 import com.github.manu585.fourelements.api.FourElementsApi;
 import com.github.manu585.fourelements.bukkit.bstats.BstatsMetrics;
 import com.github.manu585.fourelements.bukkit.commands.AvatarCommand;
-import com.github.manu585.fourelements.bukkit.commands.ChooseCommand;
 import com.github.manu585.fourelements.bukkit.commands.InfoCommand;
-import com.github.manu585.fourelements.bukkit.commands.SetCommand;
+import com.github.manu585.fourelements.bukkit.commands.ChooseCommand;
 import com.github.manu585.fourelements.bukkit.commands.SubElementCommand;
 import com.github.manu585.fourelements.bukkit.config.DatabaseSettingsReader;
 import com.github.manu585.fourelements.bukkit.listeners.ConnectionListeners;
@@ -148,10 +147,9 @@ public final class FourElementsBootstrap {
   private static @NonNull PluginSystem commandSystem(Plugin plugin, @NonNull Services services) {
     return new CommandSystem(plugin, List.of(
         new InfoCommand(services.benderManager()),
-        new SetCommand(services.benderManager()),
+        new ChooseCommand(services.benderManager()),
         new AvatarCommand(services.benderManager()),
-        new SubElementCommand(services.benderManager()),
-        new ChooseCommand(services.benderManager())
+        new SubElementCommand(services.benderManager())
     ));
   }
 

@@ -4,50 +4,41 @@ import com.github.manu585.fourelements.api.bending.Element;
 import com.github.manu585.fourelements.bukkit.commands.argument.EnumArgumentType;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
 import com.github.manu585.fourelements.bukkit.util.assets.BendingText;
-import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.entity.Player;
 
 /**
- * {@code /elements choose <element>} lets the Avatar switch which of the four classical
- * elements they are currently channeling. Open to everyone, non-Avatars are told no.
+ * {@code /elements choose <element> [target]} sets the element of yourself or another player,
+ * online or offline. A bender only ever has one, so it replaces the old one.
  */
-public class ChooseCommand extends FourElementsCommand {
+public class ChooseCommand extends TargetedCommand {
 
   private final BenderManager benderManager;
 
   public ChooseCommand(BenderManager benderManager) {
-    super("choose", null);
+    super("choose");
     this.benderManager = benderManager;
   }
 
   @Override
   protected void configure(LiteralArgumentBuilder<CommandSourceStack> root) {
-    root.then(argument("element", EnumArgumentType.element()).executes(player(this::choose)));
+    root.then(withOptionalTarget(argument("element", EnumArgumentType.element()), this::setElement));
   }
 
-  private void choose(Player player, CommandContext<CommandSourceStack> context) {
+  private void setElement(CommandContext<CommandSourceStack> context, Target target) {
     Element element = context.getArgument("element", Element.class);
-    OnlineBenderPlayer benderPlayer = benderManager.getBender(player.getUniqueId());
 
-    if (!benderPlayer.chooseActiveElement(element)) {
-      player.sendMessage(Component.text("Only the Avatar can choose an element.", NamedTextColor.RED));
-      return;
-    }
-
-    // Persist right away so the choice survives a relog or crash, not just a clean quit
-    benderManager.save(benderPlayer.benderPlayer()).exceptionally(throwable -> {
-      player.sendMessage(Component.text("Could not save your choice; it may be lost when you leave.", NamedTextColor.RED));
-      return null;
+    reply(context, target, benderManager.editBender(target.uuid(), bender -> bender.assignElement(element)), changed -> {
+      if (!changed) {
+        return Component.text(target.name() + " already is that element.", NamedTextColor.YELLOW);
+      }
+      return Component.text("Set " + target.name() + "'s element to ", NamedTextColor.GREEN)
+          .append(BendingText.name(element))
+          .append(Component.text(".", NamedTextColor.GREEN));
     });
-
-    player.sendMessage(Component.text("You are now channeling ", NamedTextColor.GREEN)
-        .append(BendingText.name(element))
-        .append(Component.text(".", NamedTextColor.GREEN)));
   }
 
 }
