@@ -22,8 +22,8 @@ import java.util.logging.Logger;
  * cannot fully roll back a partially-applied DDL migration. Three things keep this safe:
  * the {@code CREATE TABLE IF NOT EXISTS} form makes re-runs harmless, an
  * {@code ALTER TABLE ... ADD COLUMN} whose column already exists (left behind by an earlier,
- * interrupted run) is skipped instead of failing, and the {@code schema_version} row — the
- * single source of truth for what has been applied — is written only after all statements
+ * interrupted run) is skipped instead of failing, and the {@code schema_version} row - the
+ * single source of truth for what has been applied, is written only after all statements
  * succeed. Every migration must therefore be safe to run again from its first statement.
  */
 public final class Migrator {

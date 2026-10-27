@@ -10,13 +10,12 @@ import java.util.Locale;
  */
 public enum SqlDialect {
 
-  /** MySQL and MariaDB, they speak the same SQL. */
+  /** MySQL & MariaDB */
   MYSQL("com.mysql.cj.jdbc.Driver", "BINARY(16)") {
 
     @Override
     public String upsert(String table, String key, List<String> values) {
-      return insert(table, key, values) + " ON DUPLICATE KEY UPDATE "
-          + String.join(", ", values.stream().map(column -> column + " = VALUES(" + column + ")").toList());
+      return insert(table, key, values) + " ON DUPLICATE KEY UPDATE " + String.join(", ", values.stream().map(column -> column + " = VALUES(" + column + ")").toList());
     }
 
     @Override
@@ -26,12 +25,12 @@ public enum SqlDialect {
 
   },
 
+  /** SQLite */
   SQLITE("org.sqlite.JDBC", "BLOB") {
 
     @Override
     public String upsert(String table, String key, List<String> values) {
-      return insert(table, key, values) + " ON CONFLICT (" + key + ") DO UPDATE SET "
-          + String.join(", ", values.stream().map(column -> column + " = EXCLUDED." + column).toList());
+      return insert(table, key, values) + " ON CONFLICT (" + key + ") DO UPDATE SET " + String.join(", ", values.stream().map(column -> column + " = EXCLUDED." + column).toList());
     }
 
     @Override
@@ -101,8 +100,7 @@ public enum SqlDialect {
 
   /** {@code INSERT INTO table (key, a, b) VALUES (?, ?, ?)} */
   private static String insert(String table, String key, List<String> values) {
-    return "INSERT INTO " + table + " (" + key + ", " + String.join(", ", values) + ") VALUES (?"
-        + ", ?".repeat(values.size()) + ")";
+    return "INSERT INTO " + table + " (" + key + ", " + String.join(", ", values) + ") VALUES (?" + ", ?".repeat(values.size()) + ")";
   }
 
 }

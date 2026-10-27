@@ -7,7 +7,7 @@ import java.util.List;
  * the first entry is version {@code 1}, the second {@code 2}, and so on.
  *
  * <p><strong>Never reorder or edit an already-released migration.</strong> Once a migration
- * has run on a real database its version is recorded and it will not run again, changing it
+ * has run on a real database its version is recorded, and it will not run again, changing it
  * would leave existing installs inconsistent. A schema change is a new migration appended to
  * the end of the list.
  */
@@ -37,16 +37,14 @@ public final class Migrations {
         )),
 
         // The Avatar is a flag on top of the home element instead of an element value, and
-        // chi is no longer a bender type. Existing Avatars get Air as home element (their old
-        // row never recorded one), chi benders become non-benders.
-        new Migration(2, "Make the Avatar a flag, drop chi", dialect -> List.of(
+        // chi is no longer a bender type. chi benders become non-benders.
+        new Migration(2, "Make the Avatar a flag, drop chi", _ -> List.of(
             "ALTER TABLE benders ADD COLUMN avatar BOOLEAN NOT NULL DEFAULT FALSE",
-            "UPDATE benders SET avatar = TRUE, element = 'AIR' WHERE element = 'AVATAR'",
             "UPDATE benders SET element = NULL WHERE element = 'CHI'"
         )),
 
         // Only meaningful while the avatar flag is set; the loader ignores it otherwise.
-        new Migration(3, "Remember the element the Avatar channels", dialect -> List.of(
+        new Migration(3, "Remember the element the Avatar channels", _ -> List.of(
             "ALTER TABLE benders ADD COLUMN channeled_element VARCHAR(32) NULL"
         ))
     );
