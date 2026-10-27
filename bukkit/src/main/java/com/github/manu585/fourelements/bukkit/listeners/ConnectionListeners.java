@@ -7,6 +7,7 @@ import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
@@ -53,7 +54,7 @@ public class ConnectionListeners implements Listener {
     UUID uuid = event.getPlayer().getUniqueId();
     benderManager.promote(uuid);
 
-    tickSystem.register(uuid, new ChiHud(benderManager.getBender(uuid), event.getPlayer()));
+    registerChiHud(event.getPlayer());
   }
 
   @EventHandler
@@ -65,6 +66,11 @@ public class ConnectionListeners implements Listener {
 
     tickSystem.unregister(event.getPlayer().getUniqueId());
     benderManager.save(online.benderPlayer());
+  }
+
+  private void registerChiHud(Player player) {
+    ChiHud chiHud = new ChiHud(benderManager.getBender(player.getUniqueId()), player);
+    tickSystem.register(player.getUniqueId(), chiHud);
   }
 
 }
