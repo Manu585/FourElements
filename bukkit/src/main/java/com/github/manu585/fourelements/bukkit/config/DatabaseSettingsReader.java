@@ -24,6 +24,7 @@ public final class DatabaseSettingsReader {
    *
    * @param config the plugin config
    * @param dataFolder the plugin's data folder, SQLite files are resolved against it
+   *
    * @throws IllegalArgumentException if the configured type is unknown
    */
   public static DatabaseSettings read(@NonNull ConfigurationSection config, @NonNull Path dataFolder) {

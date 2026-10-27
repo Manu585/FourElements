@@ -2,7 +2,7 @@ package com.github.manu585.fourelements.bukkit.commands;
 
 import com.github.manu585.fourelements.api.bending.Element;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
-import com.github.manu585.fourelements.bukkit.text.BendingText;
+import com.github.manu585.fourelements.bukkit.util.assets.BendingText;
 import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;

@@ -1,4 +1,4 @@
-package com.github.manu585.fourelements.bukkit.text;
+package com.github.manu585.fourelements.bukkit.util.assets;
 
 import com.github.manu585.fourelements.api.bending.Element;
 import com.github.manu585.fourelements.api.bending.SubElement;

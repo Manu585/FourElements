@@ -3,7 +3,7 @@ package com.github.manu585.fourelements.bukkit.commands;
 import com.github.manu585.fourelements.api.bending.Element;
 import com.github.manu585.fourelements.bukkit.commands.argument.EnumArgumentType;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
-import com.github.manu585.fourelements.bukkit.text.BendingText;
+import com.github.manu585.fourelements.bukkit.util.assets.BendingText;
 import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -32,15 +32,15 @@ public class ChooseCommand extends FourElementsCommand {
 
   private void choose(Player player, CommandContext<CommandSourceStack> context) {
     Element element = context.getArgument("element", Element.class);
-    OnlineBenderPlayer bender = benderManager.getBender(player.getUniqueId());
+    OnlineBenderPlayer benderPlayer = benderManager.getBender(player.getUniqueId());
 
-    if (!bender.chooseActiveElement(element)) {
+    if (!benderPlayer.chooseActiveElement(element)) {
       player.sendMessage(Component.text("Only the Avatar can choose an element.", NamedTextColor.RED));
       return;
     }
 
     // Persist right away so the choice survives a relog or crash, not just a clean quit
-    benderManager.save(bender.benderPlayer()).exceptionally(throwable -> {
+    benderManager.save(benderPlayer.benderPlayer()).exceptionally(throwable -> {
       player.sendMessage(Component.text("Could not save your choice; it may be lost when you leave.", NamedTextColor.RED));
       return null;
     });
