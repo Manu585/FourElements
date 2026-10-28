@@ -1,8 +1,7 @@
 package com.github.manu585.fourelements.bukkit.listeners;
 
+import com.github.manu585.fourelements.bukkit.features.PlayerFeatures;
 import com.github.manu585.fourelements.bukkit.manager.BenderManager;
-import com.github.manu585.fourelements.bukkit.manager.ChiHud;
-import com.github.manu585.fourelements.bukkit.systems.TickSystem;
 import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
 import java.util.UUID;
 import net.kyori.adventure.text.Component;
@@ -21,19 +20,19 @@ import org.bukkit.event.player.PlayerQuitEvent;
  *   <li><b>Load</b> ({@link AsyncPlayerPreLoginEvent}) off the main thread, block on the
  *       manager to fetch (or create) the bender and stash it as pending.</li>
  *   <li><b>Attach</b> ({@link PlayerJoinEvent})  on the main thread, promote the pending
- *       bender to an online runtime object.</li>
- *   <li><b>Persist &amp; evict</b> ({@link PlayerQuitEvent}) remove the online bender and
- *       save it back asynchronously.</li>
+ *       bender to an online runtime object and switch on the {@link PlayerFeatures}.</li>
+ *   <li><b>Persist &amp; evict</b> ({@link PlayerQuitEvent}) end the features, remove the
+ *       online bender and save it back asynchronously.</li>
  * </ol>
  */
 public class ConnectionListeners implements Listener {
 
   private final BenderManager benderManager;
-  private final TickSystem tickSystem;
+  private final PlayerFeatures playerFeatures;
 
-  public ConnectionListeners(BenderManager benderManager, TickSystem tickSystem) {
+  public ConnectionListeners(BenderManager benderManager, PlayerFeatures playerFeatures) {
     this.benderManager = benderManager;
-    this.tickSystem = tickSystem;
+    this.playerFeatures = playerFeatures;
   }
 
   @EventHandler
@@ -51,26 +50,26 @@ public class ConnectionListeners implements Listener {
 
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
-    UUID uuid = event.getPlayer().getUniqueId();
-    benderManager.promote(uuid);
-
-    registerChiHud(event.getPlayer());
-  }
-
-  @EventHandler
-  public void onPlayerQuit(PlayerQuitEvent event) {
-    OnlineBenderPlayer online = benderManager.remove(event.getPlayer().getUniqueId());
+    Player player = event.getPlayer();
+    OnlineBenderPlayer online = benderManager.promote(player.getUniqueId());
     if (online == null) {
       return;
     }
 
-    tickSystem.unregister(event.getPlayer().getUniqueId());
-    benderManager.save(online.benderPlayer());
+    playerFeatures.attach(player, online);
   }
 
-  private void registerChiHud(Player player) {
-    ChiHud chiHud = new ChiHud(benderManager.getBender(player.getUniqueId()), player);
-    tickSystem.register(player.getUniqueId(), chiHud);
+  @EventHandler
+  public void onPlayerQuit(PlayerQuitEvent event) {
+    UUID uuid = event.getPlayer().getUniqueId();
+    playerFeatures.detach(uuid);
+
+    OnlineBenderPlayer online = benderManager.remove(uuid);
+    if (online == null) {
+      return;
+    }
+
+    benderManager.save(online.benderPlayer());
   }
 
 }

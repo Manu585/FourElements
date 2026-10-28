@@ -7,12 +7,15 @@ import com.github.manu585.fourelements.bukkit.commands.InfoCommand;
 import com.github.manu585.fourelements.bukkit.commands.ChooseCommand;
 import com.github.manu585.fourelements.bukkit.commands.SubElementCommand;
 import com.github.manu585.fourelements.bukkit.config.DatabaseSettingsReader;
+import com.github.manu585.fourelements.bukkit.features.PlayerFeatures;
+import com.github.manu585.fourelements.bukkit.hud.ChiHudFeature;
 import com.github.manu585.fourelements.bukkit.listeners.ConnectionListeners;
 import com.github.manu585.fourelements.bukkit.listeners.bending.AvatarSwitchElementListener;
 import com.github.manu585.fourelements.bukkit.listeners.bending.EnterBendingModeListener;
 import com.github.manu585.fourelements.bukkit.systems.CommandSystem;
 import com.github.manu585.fourelements.bukkit.systems.ListenerSystem;
 import com.github.manu585.fourelements.bukkit.systems.TickSystem;
+import com.github.manu585.fourelements.bukkit.systems.chi.ChiReplenishFeature;
 import com.github.manu585.fourelements.core.exceptions.StartupException;
 import com.github.manu585.fourelements.core.system.PluginSystem;
 import java.sql.SQLException;
@@ -113,12 +116,12 @@ public final class FourElementsBootstrap {
   }
 
   private static @NonNull List<PluginSystem> enableSystems(Plugin plugin, Services services) {
-    // The ticker comes first, the listeners register their tickables on it
     TickSystem tickSystem = new TickSystem(plugin);
+    PlayerFeatures playerFeatures = playerFeatures(plugin, tickSystem);
     List<PluginSystem> systems = List.of(
         tickSystem,
         commandSystem(plugin, services),
-        listenerSystem(plugin, services, tickSystem)
+        listenerSystem(plugin, services, playerFeatures)
     );
     systems.forEach(PluginSystem::enable);
     return systems;
@@ -157,10 +160,19 @@ public final class FourElementsBootstrap {
     ));
   }
 
+  // Switched on for every joining player, new per-player behaviour gets added here
+  @Contract("_, _ -> new")
+  private static @NonNull PlayerFeatures playerFeatures(Plugin plugin, TickSystem tickSystem) {
+    return new PlayerFeatures(tickSystem, List.of(
+        new ChiHudFeature(),
+        new ChiReplenishFeature()
+    ), plugin.getLogger());
+  }
+
   @Contract("_, _, _ -> new")
-  private static @NonNull PluginSystem listenerSystem(Plugin plugin, @NonNull Services services, TickSystem tickSystem) {
+  private static @NonNull PluginSystem listenerSystem(Plugin plugin, @NonNull Services services, PlayerFeatures playerFeatures) {
     return new ListenerSystem(plugin, List.of(
-        new ConnectionListeners(services.benderManager(), tickSystem),
+        new ConnectionListeners(services.benderManager(), playerFeatures),
         new EnterBendingModeListener(services.benderManager(), services.bendingModeCombination()),
         new AvatarSwitchElementListener(services.benderManager())
     ));

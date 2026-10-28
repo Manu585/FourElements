@@ -1,7 +1,7 @@
 package com.github.manu585.fourelements.core.tick;
 
 /**
- * Something that runs once every server tick, driven by the platform's ticker.
+ * Something that runs repeatedly, driven by a {@link TickScheduler} at the interval it was registered with.
  */
 @FunctionalInterface
 public interface Tickable {
