@@ -1,6 +1,7 @@
 package com.github.manu585.fourelements.core.bender.chi;
 
 import com.github.manu585.fourelements.api.bender.Chi;
+import java.util.function.Consumer;
 
 /**
  * The chi of one online bender. Session-only: it starts full when the bender joins and is
@@ -16,6 +17,8 @@ public final class ChiPool implements Chi {
 
   private volatile double max;
   private volatile double current;
+
+  private volatile Consumer<? super Chi> onDeficit = _ -> {};
 
   public ChiPool(double max) {
     requirePositive(max);
@@ -39,13 +42,31 @@ public final class ChiPool implements Chi {
    * @param amount chi to spend, not negative
    * @return <code>true</code> if it was spent, <code>false</code> if there was not enough (nothing is taken)
    */
-  public synchronized boolean spend(double amount) {
+  public boolean spend(double amount) {
     requireNotNegative(amount);
-    if (amount > current) {
-      return false;
+    boolean leftFull;
+    synchronized (this) {
+      if (amount > current) {
+        return false;
+      }
+      boolean wasFull = current >= max;
+      current -= amount;
+      leftFull = wasFull && current < max;
     }
-    current -= amount;
+    // Only accept callback if spending chi while being full
+    // since then the replenish chi will start
+    if (leftFull) {
+      onDeficit.accept(this);
+    }
     return true;
+  }
+
+  /**
+   * Get told when the pool stops being full, e.g. to start giving chi back. It is not called
+   * again while chi is still missing, only after the pool was full once more.
+   */
+  public void onDeficit(Consumer<? super Chi> listener) {
+    this.onDeficit = listener;
   }
 
   /**
@@ -63,10 +84,18 @@ public final class ChiPool implements Chi {
    *
    * @param newMax the new maximum, greater than zero
    */
-  public synchronized void max(double newMax) {
+  public void max(double newMax) {
     requirePositive(newMax);
-    max = newMax;
-    current = Math.min(current, newMax);
+    boolean leftFull;
+    synchronized (this) {
+      boolean wasFull = current >= max;
+      max = newMax;
+      current = Math.min(current, newMax);
+      leftFull = wasFull && current < max;
+    }
+    if (leftFull) {
+      onDeficit.accept(this);
+    }
   }
 
   private static void requirePositive(double value) {

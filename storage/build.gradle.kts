@@ -15,3 +15,8 @@ dependencies {
     testRuntimeOnly(libs.mysql)
     testRuntimeOnly(libs.sqlite)
 }
+
+tasks.test {
+    // sqlite-jdbc loads its native library; opt in so newer JDKs don't warn about restricted methods
+    jvmArgs("--enable-native-access=ALL-UNNAMED")
+}
