@@ -25,7 +25,8 @@ public class EnterBendingModeListener implements Listener {
 
     if (!bender.isBender()) return;
 
-    combination.processInput(player.getUniqueId(), player.getCurrentInput());
+    // The event fires before the input is stored on the player, so only the event knows the new one
+    combination.processInput(player.getUniqueId(), event.getInput());
   }
 
 }

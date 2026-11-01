@@ -18,6 +18,7 @@ public final class ChiPool implements Chi {
   private volatile double max;
   private volatile double current;
 
+  // We have to initiate it so it doesn't throw an NPE
   private volatile Consumer<? super Chi> onDeficit = _ -> {};
 
   public ChiPool(double max) {

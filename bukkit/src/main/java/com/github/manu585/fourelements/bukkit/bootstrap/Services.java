@@ -10,6 +10,7 @@ import com.github.manu585.fourelements.core.repository.BenderRepository;
 import com.github.manu585.fourelements.storage.bender.SqlBenderRepository;
 import com.github.manu585.fourelements.storage.sql.Database;
 import java.util.List;
+import org.bukkit.Input;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -23,7 +24,10 @@ record Services(BenderRepository benderRepository, BenderManager benderManager, 
   static @NonNull Services wire(Database database) {
     BenderRepository benderRepository = new SqlBenderRepository(database);
     BenderManager benderManager = new BenderManager(new OnlineBenderRegistry(), benderRepository);
-    BendingModeCombination bendingModeCombination = new BendingModeCombination(List.of(SimpleInput.of(true, false, false, false, false, false, false)), benderManager);
+    // Tap sneak twice: sneak, let go, sneak
+    Input sneak = SimpleInput.of(false, false, false, false, false, true, false);
+    Input idle = SimpleInput.of(false, false, false, false, false, false, false);
+    BendingModeCombination bendingModeCombination = new BendingModeCombination(List.of(sneak, idle, sneak), benderManager);
     FourElementsProviderImpl fourElementsProvider = new FourElementsProviderImpl(benderManager);
 
     return new Services(benderRepository, benderManager, bendingModeCombination, fourElementsProvider);

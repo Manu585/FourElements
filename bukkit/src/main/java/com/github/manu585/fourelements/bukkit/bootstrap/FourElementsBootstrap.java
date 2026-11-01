@@ -27,7 +27,6 @@ import java.util.concurrent.CompletableFuture;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -118,6 +117,7 @@ public final class FourElementsBootstrap {
   private static @NonNull List<PluginSystem> enableSystems(Plugin plugin, Services services) {
     TickSystem tickSystem = new TickSystem(plugin);
     PlayerFeatures playerFeatures = playerFeatures(plugin, tickSystem);
+
     List<PluginSystem> systems = List.of(
         tickSystem,
         commandSystem(plugin, services),
@@ -148,9 +148,6 @@ public final class FourElementsBootstrap {
     systems.reversed().forEach(PluginSystem::disable);
   }
 
-  // ---- Systems ----
-
-  @Contract("_, _ -> new")
   private static @NonNull PluginSystem commandSystem(Plugin plugin, @NonNull Services services) {
     return new CommandSystem(plugin, List.of(
         new InfoCommand(services.benderManager()),
@@ -160,8 +157,7 @@ public final class FourElementsBootstrap {
     ));
   }
 
-  // Switched on for every joining player, new per-player behaviour gets added here
-  @Contract("_, _ -> new")
+  // Switched on for every joining player, new per-player behavior gets added here
   private static @NonNull PlayerFeatures playerFeatures(Plugin plugin, TickSystem tickSystem) {
     return new PlayerFeatures(tickSystem, List.of(
         new ChiHudFeature(),
@@ -169,7 +165,6 @@ public final class FourElementsBootstrap {
     ), plugin.getLogger());
   }
 
-  @Contract("_, _, _ -> new")
   private static @NonNull PluginSystem listenerSystem(Plugin plugin, @NonNull Services services, PlayerFeatures playerFeatures) {
     return new ListenerSystem(plugin, List.of(
         new ConnectionListeners(services.benderManager(), playerFeatures),

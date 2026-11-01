@@ -11,6 +11,7 @@ public final class TickScope implements AutoCloseable {
 
   private final TickScheduler scheduler;
   private final List<Registration> registrations = new CopyOnWriteArrayList<>();
+  private final List<Runnable> closeActions = new CopyOnWriteArrayList<>();
 
   private volatile boolean closed;
 
@@ -35,11 +36,28 @@ public final class TickScope implements AutoCloseable {
     return registration;
   }
 
+  /**
+   * Run this once when the scope is closed, e.g. to release what the registered tickables hold.
+   * Runs right away if the scope is already closed.
+   *
+   * @return a handle to drop the action again, e.g. when what it would release is already gone
+   */
+  public Registration onClose(Runnable action) {
+    if (closed) {
+      action.run();
+      return () -> {};
+    }
+    closeActions.add(action);
+    return () -> closeActions.remove(action);
+  }
+
   @Override
   public void close() {
     closed = true;
     registrations.forEach(Registration::cancel);
     registrations.clear();
+    closeActions.forEach(Runnable::run);
+    closeActions.clear();
   }
 
 }
