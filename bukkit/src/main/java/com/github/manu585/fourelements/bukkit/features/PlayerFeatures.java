@@ -28,7 +28,7 @@ public final class PlayerFeatures {
     this.logger = logger;
   }
 
-  public void attach(Player player, OnlineBenderPlayer bender) {
+  public void attachAllFeatures(Player player, OnlineBenderPlayer bender) {
     TickScope scope = tickSystem.scope();
     detach(player.getUniqueId());
     scopes.put(player.getUniqueId(), scope);

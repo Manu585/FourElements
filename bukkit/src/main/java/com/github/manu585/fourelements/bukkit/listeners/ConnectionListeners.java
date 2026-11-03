@@ -56,7 +56,7 @@ public class ConnectionListeners implements Listener {
       return;
     }
 
-    playerFeatures.attach(player, online);
+    playerFeatures.attachAllFeatures(player, online);
   }
 
   @EventHandler
