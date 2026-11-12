@@ -17,7 +17,7 @@ public final class FourElementsProviderImpl implements FourElementsProvider {
 
   @Override
   public Optional<OnlineBender> getOnlineBender(UUID uuid) {
-    return benderManager.findOnline(uuid).map(Function.identity());
+    return benderManager.findOnline(uuid);
   }
 
 }

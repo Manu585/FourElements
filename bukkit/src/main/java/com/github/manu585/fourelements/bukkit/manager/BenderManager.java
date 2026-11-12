@@ -1,5 +1,6 @@
 package com.github.manu585.fourelements.bukkit.manager;
 
+import com.github.manu585.fourelements.api.bender.OnlineBender;
 import com.github.manu585.fourelements.core.bender.BenderPlayer;
 import com.github.manu585.fourelements.core.bender.OnlineBenderPlayer;
 import com.github.manu585.fourelements.core.concurrent.KeyedTaskQueue;
@@ -82,7 +83,7 @@ public final class BenderManager {
    * @param uuid UUID of the player
    * @return the online bender, or empty if that player is not online
    */
-  public Optional<OnlineBenderPlayer> findOnline(UUID uuid) {
+  public Optional<OnlineBender> findOnline(UUID uuid) {
     return Optional.ofNullable(registry.get(uuid));
   }
 
